@@ -39,37 +39,52 @@ for either folder name. Put the folder on a local disk, not inside Google Drive,
 
 ## Start: Docker (recommended, same environment for everyone)
 
-Install [Docker Desktop](https://www.docker.com/products/docker-desktop/), make sure the folder is on a local
-disk (Docker cannot mount cloud-synced folders), then in a terminal:
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and start it. Make sure the folder is on
+a local disk (Docker cannot mount cloud-synced folders). Then, in a terminal (macOS: Terminal; Windows: PowerShell):
 
 ```bash
 cd control-in-practice*          # control-in-practice (git clone) or control-in-practice-main (zip)
-docker compose up --build        # first time builds the image (a few minutes)
+docker compose up --build        # the first time builds the image (a few minutes); afterwards: docker compose up
 ```
 
-Open http://localhost:8888. Your edits are saved in this folder. Stop with Ctrl+C.
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/`, then the folder of your lab (for example `02_cruise/`), and
+double-click a demo notebook. Run its cells in order with Shift+Enter; the figures appear under the cells. Your
+changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and run `docker compose down`.
+
+Without the browser:
 
 ```bash
-docker compose run --rm check    # run every demo and starter headless, figures in out/
+docker compose run --rm lab python run_all.py 02_    # all demos and the homework starter of Lab 02
+docker compose run --rm check                        # every lab and the tests; figures in out/
 ```
 
-The demos are plain Python files in notebook-cell format. To open one as a notebook in JupyterLab, right-click it
-and choose *Open With > Notebook*, or open the `.ipynb` copies in `notebooks/` (rebuilt from the `.py` files
-with `python tools/make_notebooks.py`).
+The notebooks in `notebooks/` are made from the `.py` files in `labs/` (`python tools/make_notebooks.py`); both
+contain the same code.
 
 ## Start: without Docker
 
-Python 3.11 or newer:
+You need Python 3.11 or newer. Set up an environment once:
 
 ```bash
 cd control-in-practice*                # the folder from the clone or the zip
 python -m venv .venv
-source .venv/bin/activate              # Windows: .venv\Scripts\Activate.ps1
+source .venv/bin/activate              # Windows PowerShell: .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-export PYTHONPATH=$PWD                 # Windows: $env:PYTHONPATH = $PWD
-python labs/01_thermal/demo_1_identify.py
-python run_all.py 01_                  # one lab, headless
 ```
+
+In every new terminal:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate              # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD                 # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/01_thermal/demo_1_identify.py    # one demo; each figure opens in a window, close it to continue
+python run_all.py 01_                  # all demos and hw_starter.py of Lab 01, figures saved in out/
+jupyter lab                            # the notebooks in your browser
+```
+
+Each lab README ends with a "How to run" section that lists its notebooks and the commands for that lab.
 
 ## Shared tools (`ctrlprac/`)
 

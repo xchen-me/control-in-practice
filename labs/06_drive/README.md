@@ -70,8 +70,62 @@ Key results for S1: f_r = 60.1 Hz, zeta = 0.040 from the peak (true 60.0 Hz, 0.0
 measured PM 48 deg, GM 10.6 dB at 50 Hz (from the resonance), Ms = 1.75. At 15 Hz GM 1.7 dB and
 Ms = 11; at 20 Hz the resonance loop encircles -1 and the stage oscillates at the belt mode.
 
-## Run
+## How to run
 
-    docker compose run --rm lab python run_all.py 06_          # in the image (see Dockerfile)
-    PYTHONPATH=. python run_all.py 06_                          # locally, from control-in-practice/
-    PYTHONPATH=. python labs/06_drive/_make_data.py             # regenerate data/06_drive_*
+**Get the materials once.** Clone the repository or download it as a zip file (see
+[Get the materials](../../README.md#get-the-materials)), and put the folder on a local disk, not inside Google
+Drive, OneDrive or iCloud. Every command below is typed in a terminal (macOS: Terminal; Windows: PowerShell)
+inside that folder. It is called `control-in-practice` after `git clone` and `control-in-practice-main` after
+unzipping; `cd control-in-practice*` works for both.
+
+**Option 1: JupyterLab in Docker (recommended).** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+and start it, then run
+
+```bash
+cd control-in-practice*
+docker compose up --build         # the first time builds the image (a few minutes); afterwards: docker compose up
+```
+
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/06_drive/` and double-click a notebook. Run its cells in order with
+Shift+Enter; the figures appear under the cells. The notebooks of this lab are
+
+| notebook | content |
+|---|---|
+| `demo_drive_1_frf.ipynb` | measuring a frequency response and reading the Bode plot |
+| `demo_drive_2_fit.ipynb` | fitting a transfer function to the measured response, and a low-order design model |
+| `demo_drive_3_lead.ipynb` | lead design on the Bode plot, margins checked on the measured response |
+| `hw_starter.ipynb` | starter for the homework |
+
+Your changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and then run
+`docker compose down`. To run all demos and the homework starter of this lab without the browser, use
+
+```bash
+docker compose run --rm lab python run_all.py 06_
+```
+
+The printed numbers appear in the terminal and the figures are saved in `out/` as `06_drive_<script>_<n>.png`.
+
+**Option 2: Python on your own computer.** You need Python 3.11 or newer. Set up an environment once:
+
+```bash
+cd control-in-practice*
+python -m venv .venv
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+In every new terminal, activate the environment again and tell Python where `ctrlprac` is:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD            # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/06_drive/demo_drive_1_frf.py         # one demo; each figure opens in a window, close it to continue
+python run_all.py 06_               # all demos and hw_starter.py of this lab, figures saved in out/
+jupyter lab                       # the same notebooks as in Option 1, in your browser
+```
+
+**Homework.** Write your solution in `labs/06_drive/hw_starter.py` (run it with `python labs/06_drive/hw_starter.py`)
+or in `notebooks/06_drive/hw_starter.ipynb`, and submit the file you worked in. The two start out identical but are
+separate files, so pick one and stay with it.

@@ -53,9 +53,62 @@ nonlinear model with Coulomb friction, PWM ripple and delay, integer encoder cou
 - `homework.md`, `hw_starter.py`: Motor B (`data/03_motor_hw_step`).
 - `_model.py` (lab helpers), `_make_data.py` (regenerates the data), `figures/scene.tex` and `scene_hw.tex` (TikZ source of the scene figures; `tools/build_figures.sh 03_`).
 
-## Run
+## How to run
 
-Docker: `docker compose up`, open http://localhost:8888, then open the demos as notebooks (jupytext).
-Local: `cd control-in-practice && PYTHONPATH=. python labs/03_motor/_make_data.py` (only to regenerate
-data), then `cd labs/03_motor && PYTHONPATH=../.. python demo_motor_1_model_ident.py`.
-All scripts headless: `PYTHONPATH=. python run_all.py 03_` (figures in `out/`).
+**Get the materials once.** Clone the repository or download it as a zip file (see
+[Get the materials](../../README.md#get-the-materials)), and put the folder on a local disk, not inside Google
+Drive, OneDrive or iCloud. Every command below is typed in a terminal (macOS: Terminal; Windows: PowerShell)
+inside that folder. It is called `control-in-practice` after `git clone` and `control-in-practice-main` after
+unzipping; `cd control-in-practice*` works for both.
+
+**Option 1: JupyterLab in Docker (recommended).** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+and start it, then run
+
+```bash
+cd control-in-practice*
+docker compose up --build         # the first time builds the image (a few minutes); afterwards: docker compose up
+```
+
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/03_motor/` and double-click a notebook. Run its cells in order with
+Shift+Enter; the figures appear under the cells. The notebooks of this lab are
+
+| notebook | content |
+|---|---|
+| `demo_motor_1_model_ident.ipynb` | DC gearmotor, from physics to K/(s(tau s+1)) and back from a logged step |
+| `demo_motor_2_root_locus_pd.ipynb` | position loop, P control on the root locus and a PD design |
+| `demo_motor_3_lead_lag_hw.ipynb` | lead as the realizable PD, lag/PI for steady-state error, hardware test |
+| `hw_starter.ipynb` | starter for the homework |
+
+Your changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and then run
+`docker compose down`. To run all demos and the homework starter of this lab without the browser, use
+
+```bash
+docker compose run --rm lab python run_all.py 03_
+```
+
+The printed numbers appear in the terminal and the figures are saved in `out/` as `03_motor_<script>_<n>.png`.
+
+**Option 2: Python on your own computer.** You need Python 3.11 or newer. Set up an environment once:
+
+```bash
+cd control-in-practice*
+python -m venv .venv
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+In every new terminal, activate the environment again and tell Python where `ctrlprac` is:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD            # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/03_motor/demo_motor_1_model_ident.py         # one demo; each figure opens in a window, close it to continue
+python run_all.py 03_               # all demos and hw_starter.py of this lab, figures saved in out/
+jupyter lab                       # the same notebooks as in Option 1, in your browser
+```
+
+**Homework.** Write your solution in `labs/03_motor/hw_starter.py` (run it with `python labs/03_motor/hw_starter.py`)
+or in `notebooks/03_motor/hw_starter.ipynb`, and submit the file you worked in. The two start out identical but are
+separate files, so pick one and stay with it.

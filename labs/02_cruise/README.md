@@ -53,13 +53,61 @@ cancelling zero. On the 9 % hill, no anti-windup overshoots by about 10 m/s afte
 
 ## How to run
 
-Docker (from `control-in-practice/`): `docker compose up` and open http://localhost:8888, or headless
-`docker compose run --rm lab python run_all.py 02_`.
+**Get the materials once.** Clone the repository or download it as a zip file (see
+[Get the materials](../../README.md#get-the-materials)), and put the folder on a local disk, not inside Google
+Drive, OneDrive or iCloud. Every command below is typed in a terminal (macOS: Terminal; Windows: PowerShell)
+inside that folder. It is called `control-in-practice` after `git clone` and `control-in-practice-main` after
+unzipping; `cd control-in-practice*` works for both.
 
-Local:
+**Option 1: JupyterLab in Docker (recommended).** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+and start it, then run
 
+```bash
+cd control-in-practice*
+docker compose up --build         # the first time builds the image (a few minutes); afterwards: docker compose up
 ```
-cd control-in-practice
-PYTHONPATH=. python labs/02_cruise/_make_data.py       # only if data/02_* are missing
-PYTHONPATH=. python run_all.py 02_                     # all demos and the starter; figures in out/
+
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/02_cruise/` and double-click a notebook. Run its cells in order with
+Shift+Enter; the figures appear under the cells. The notebooks of this lab are
+
+| notebook | content |
+|---|---|
+| `demo_1_model_ident.ipynb` | a cruise-control model from physics and from a logged throttle step (L3, L6-L7) |
+| `demo_2_grade_p_control.ipynb` | a hill is a disturbance, and P control cannot fully reject it (L2, L12, L13) |
+| `demo_3_pi_lag_rootlocus.ipynb` | where to put the PI zero, and lag vs PI (L13-L18) |
+| `demo_4_steep_hill_windup.ipynb` | a steep hill saturates the throttle, and the integrator winds up (L19, L26) |
+| `hw_starter.ipynb` | starter for the homework |
+
+Your changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and then run
+`docker compose down`. To run all demos and the homework starter of this lab without the browser, use
+
+```bash
+docker compose run --rm lab python run_all.py 02_
 ```
+
+The printed numbers appear in the terminal and the figures are saved in `out/` as `02_cruise_<script>_<n>.png`.
+
+**Option 2: Python on your own computer.** You need Python 3.11 or newer. Set up an environment once:
+
+```bash
+cd control-in-practice*
+python -m venv .venv
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+In every new terminal, activate the environment again and tell Python where `ctrlprac` is:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD            # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/02_cruise/demo_1_model_ident.py         # one demo; each figure opens in a window, close it to continue
+python run_all.py 02_               # all demos and hw_starter.py of this lab, figures saved in out/
+jupyter lab                       # the same notebooks as in Option 1, in your browser
+```
+
+**Homework.** Write your solution in `labs/02_cruise/hw_starter.py` (run it with `python labs/02_cruise/hw_starter.py`)
+or in `notebooks/02_cruise/hw_starter.ipynb`, and submit the file you worked in. The two start out identical but are
+separate files, so pick one and stay with it.

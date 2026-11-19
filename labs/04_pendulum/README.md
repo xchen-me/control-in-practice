@@ -65,10 +65,64 @@ gyroscope CSV. In the setup photo, show the pendulum and the tape, not people or
 - `_make_data.py` (the simulated sample), `figures/scene.tex` and `scene_hw.tex` (TikZ source of the
   scene figures; `tools/build_figures.sh 04_`).
 
-## Run
+**Your own recording in the demos.** In `demo_pendulum_1_decay.py`, change `name = '04_pendulum_sample'` to
+`name = '04_pendulum_my_recording'` and set d and the phone size in the demo (the sample reads them from its JSON).
 
-Docker: `docker compose up`, open http://localhost:8888, open the demos as notebooks (jupytext).
-Local: `cd labs/04_pendulum && PYTHONPATH=../.. python demo_pendulum_1_decay.py`.
-Headless: `cd control-in-practice && PYTHONPATH=. python run_all.py 04_` (figures in `out/`).
-To use your own file in the demos, change `name = '04_pendulum_sample'` to `'04_pendulum_my_recording'`
-and set d and the phone size in the demo (the sample reads them from its JSON).
+## How to run
+
+**Get the materials once.** Clone the repository or download it as a zip file (see
+[Get the materials](../../README.md#get-the-materials)), and put the folder on a local disk, not inside Google
+Drive, OneDrive or iCloud. Every command below is typed in a terminal (macOS: Terminal; Windows: PowerShell)
+inside that folder. It is called `control-in-practice` after `git clone` and `control-in-practice-main` after
+unzipping; `cd control-in-practice*` works for both.
+
+**Option 1: JupyterLab in Docker (recommended).** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+and start it, then run
+
+```bash
+cd control-in-practice*
+docker compose up --build         # the first time builds the image (a few minutes); afterwards: docker compose up
+```
+
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/04_pendulum/` and double-click a notebook. Run its cells in order with
+Shift+Enter; the figures appear under the cells. The notebooks of this lab are
+
+| notebook | content |
+|---|---|
+| `demo_pendulum_1_decay.ipynb` | a phone pendulum, damping and natural frequency from a free decay |
+| `demo_pendulum_2_nonlinear.ipynb` | where the linear second-order model stops: large angles and air drag |
+| `hw_starter.ipynb` | starter for the homework |
+
+Your changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and then run
+`docker compose down`. To run all demos and the homework starter of this lab without the browser, use
+
+```bash
+docker compose run --rm lab python run_all.py 04_
+```
+
+The printed numbers appear in the terminal and the figures are saved in `out/` as `04_pendulum_<script>_<n>.png`.
+
+**Option 2: Python on your own computer.** You need Python 3.11 or newer. Set up an environment once:
+
+```bash
+cd control-in-practice*
+python -m venv .venv
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+In every new terminal, activate the environment again and tell Python where `ctrlprac` is:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD            # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/04_pendulum/demo_pendulum_1_decay.py         # one demo; each figure opens in a window, close it to continue
+python run_all.py 04_               # all demos and hw_starter.py of this lab, figures saved in out/
+jupyter lab                       # the same notebooks as in Option 1, in your browser
+```
+
+**Homework.** Write your solution in `labs/04_pendulum/hw_starter.py` (run it with `python labs/04_pendulum/hw_starter.py`)
+or in `notebooks/04_pendulum/hw_starter.ipynb`, and submit the file you worked in. The two start out identical but are
+separate files, so pick one and stay with it.

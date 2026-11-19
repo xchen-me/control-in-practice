@@ -76,8 +76,62 @@ Key results for R1 (firmware gains Kp = 1.38 N m/rad, Kd = 0.0585 N m s/rad): PM
 gain may drop to 22 % or rise 2.7x, total loop delay limit 19.6 ms (3 samples stable, 4 unstable); the
 30 ms firmware tips over with a 33 rad/s growing oscillation, as the model predicts.
 
-## Run
+## How to run
 
-    docker compose run --rm lab python run_all.py 05_          # in the image (see Dockerfile)
-    PYTHONPATH=. python run_all.py 05_                          # locally, from control-in-practice/
-    PYTHONPATH=. python labs/05_balance/_make_data.py           # regenerate data/05_*
+**Get the materials once.** Clone the repository or download it as a zip file (see
+[Get the materials](../../README.md#get-the-materials)), and put the folder on a local disk, not inside Google
+Drive, OneDrive or iCloud. Every command below is typed in a terminal (macOS: Terminal; Windows: PowerShell)
+inside that folder. It is called `control-in-practice` after `git clone` and `control-in-practice-main` after
+unzipping; `cd control-in-practice*` works for both.
+
+**Option 1: JupyterLab in Docker (recommended).** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+and start it, then run
+
+```bash
+cd control-in-practice*
+docker compose up --build         # the first time builds the image (a few minutes); afterwards: docker compose up
+```
+
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/05_balance/` and double-click a notebook. Run its cells in order with
+Shift+Enter; the figures appear under the cells. The notebooks of this lab are
+
+| notebook | content |
+|---|---|
+| `demo_balance_1_model.ipynb` | an unstable plant, identified from logs; why P fails, Routh range for PD |
+| `demo_balance_2_rootlocus_bode.ipynb` | PD design on the root locus, and the Bode plot of an unstable plant |
+| `demo_balance_3_nyquist_delay.ipynb` | Nyquist with an unstable open loop, two gain margins, and the delay limit |
+| `hw_starter.ipynb` | starter for the homework |
+
+Your changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and then run
+`docker compose down`. To run all demos and the homework starter of this lab without the browser, use
+
+```bash
+docker compose run --rm lab python run_all.py 05_
+```
+
+The printed numbers appear in the terminal and the figures are saved in `out/` as `05_balance_<script>_<n>.png`.
+
+**Option 2: Python on your own computer.** You need Python 3.11 or newer. Set up an environment once:
+
+```bash
+cd control-in-practice*
+python -m venv .venv
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+In every new terminal, activate the environment again and tell Python where `ctrlprac` is:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD            # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/05_balance/demo_balance_1_model.py         # one demo; each figure opens in a window, close it to continue
+python run_all.py 05_               # all demos and hw_starter.py of this lab, figures saved in out/
+jupyter lab                       # the same notebooks as in Option 1, in your browser
+```
+
+**Homework.** Write your solution in `labs/05_balance/hw_starter.py` (run it with `python labs/05_balance/hw_starter.py`)
+or in `notebooks/05_balance/hw_starter.ipynb`, and submit the file you worked in. The two start out identical but are
+separate files, so pick one and stay with it.

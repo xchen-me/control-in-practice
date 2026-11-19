@@ -50,14 +50,61 @@ true plant; without anti-windup the 21 -> 50 degC step overshoots by about 17 %.
 
 ## How to run
 
-Docker (from `control-in-practice/`): `docker compose up`, open http://localhost:8888, open a demo as a notebook;
-or headless: `docker compose run --rm lab python run_all.py 01_`.
+**Get the materials once.** Clone the repository or download it as a zip file (see
+[Get the materials](../../README.md#get-the-materials)), and put the folder on a local disk, not inside Google
+Drive, OneDrive or iCloud. Every command below is typed in a terminal (macOS: Terminal; Windows: PowerShell)
+inside that folder. It is called `control-in-practice` after `git clone` and `control-in-practice-main` after
+unzipping; `cd control-in-practice*` works for both.
 
-Local:
+**Option 1: JupyterLab in Docker (recommended).** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+and start it, then run
 
+```bash
+cd control-in-practice*
+docker compose up --build         # the first time builds the image (a few minutes); afterwards: docker compose up
 ```
-cd control-in-practice
-PYTHONPATH=. python labs/01_thermal/_make_data.py      # only if data/01_* are missing
-PYTHONPATH=. python run_all.py 01_                     # all demos and the starter; figures in out/
-PYTHONPATH=. python labs/01_thermal/demo_3_pid_rootlocus.py
+
+When the terminal shows a line with `http://127.0.0.1:8888/lab`, open http://localhost:8888 in your browser. In
+the file browser on the left, open `notebooks/01_thermal/` and double-click a notebook. Run its cells in order with
+Shift+Enter; the figures appear under the cells. The notebooks of this lab are
+
+| notebook | content |
+|---|---|
+| `demo_1_identify.ipynb` | a first-order-plus-dead-time model from a heater step test (L6-L7) |
+| `demo_2_p_control.ipynb` | proportional control leaves a steady-state error (L12) |
+| `demo_3_pid_rootlocus.ipynb` | PI/PID by root locus, saturation and anti-windup (L13-L19) |
+| `demo_4_bode_nyquist.ipynb` | the delay limits phase margin and bandwidth (L20-L26) |
+| `hw_starter.ipynb` | starter for the homework |
+
+Your changes are saved in the folder on your disk. To stop, press Ctrl+C in the terminal and then run
+`docker compose down`. To run all demos and the homework starter of this lab without the browser, use
+
+```bash
+docker compose run --rm lab python run_all.py 01_
 ```
+
+The printed numbers appear in the terminal and the figures are saved in `out/` as `01_thermal_<script>_<n>.png`.
+
+**Option 2: Python on your own computer.** You need Python 3.11 or newer. Set up an environment once:
+
+```bash
+cd control-in-practice*
+python -m venv .venv
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+In every new terminal, activate the environment again and tell Python where `ctrlprac` is:
+
+```bash
+cd control-in-practice*
+source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
+export PYTHONPATH=$PWD            # Windows PowerShell: $env:PYTHONPATH = $PWD
+python labs/01_thermal/demo_1_identify.py         # one demo; each figure opens in a window, close it to continue
+python run_all.py 01_               # all demos and hw_starter.py of this lab, figures saved in out/
+jupyter lab                       # the same notebooks as in Option 1, in your browser
+```
+
+**Homework.** Write your solution in `labs/01_thermal/hw_starter.py` (run it with `python labs/01_thermal/hw_starter.py`)
+or in `notebooks/01_thermal/hw_starter.ipynb`, and submit the file you worked in. The two start out identical but are
+separate files, so pick one and stay with it.
