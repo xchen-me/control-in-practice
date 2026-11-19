@@ -119,6 +119,8 @@ for d in sorted(glob.glob(os.path.join(HERE, 'labs', '[0-9][0-9]_*'))):
     lab = os.path.basename(d)
     num = lab[:2]
     readme, hwmd = os.path.join(d, 'README.md'), os.path.join(d, 'homework.md')
+    if not (os.path.exists(readme) and os.path.exists(hwmd)):     # a lab still being written
+        continue
     rmd, hw = read(readme), read(hwmd)
     title = re.search(r'^# (.+)$', rmd, re.M)[1]
     short = re.sub(r'^Lab \d+: ', '', title)
@@ -184,12 +186,15 @@ GitHub repository <a href="{REPO}">github.com/xchen-me/control-in-practice</a>; 
 {''.join(cards)}
 
 <h2>Getting started</h2>
+<p>Open this page and the lab pages it links to directly in your web browser (double-click
+<code>index.html</code> in Finder or File Explorer). Inside JupyterLab the links and figures of HTML pages do not
+load; there, open the <code>README.md</code> of a lab instead, which JupyterLab shows as a formatted page.</p>
 <p>Get the materials with <code>git clone {REPO}.git</code> or as the
 <a href="{REPO}/archive/refs/heads/main.zip">zip file</a>, which unpacks as <code>control-in-practice-main</code>.
 With Docker (recommended, the same environment for everyone): put the folder on a local disk, not inside
 Google Drive, OneDrive or iCloud, then run</p>
 <pre>cd control-in-practice*          # the folder from the clone or the zip
-docker compose up --build        # then open http://localhost:8888
+docker compose up --build        # then open http://localhost:8888 and see a lab README for the steps
 docker compose run --rm check    # runs every demo and starter, figures in out/</pre>
 <p>Without Docker (Python 3.11 or newer):</p>
 <pre>python -m venv .venv &amp;&amp; source .venv/bin/activate

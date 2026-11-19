@@ -12,4 +12,6 @@ services:
     image: control-in-practice:2026
     volumes:
       - .:/course
+    environment:
+      - MPLBACKEND=Agg
     command: ["sh", "-c", "python run_all.py && pytest -q tests"]
