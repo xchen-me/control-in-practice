@@ -1,0 +1,42 @@
+{
+  "source": "simulated",
+  "description": "Logarithmic swept-sine current excitation (0.5 A, 1-400 Hz in 12 s) on stage S2 inside the parking loop. (homework)",
+  "stage": "S2",
+  "sample_time_s": 0.00025,
+  "delay_samples": 2,
+  "parking_loop": {
+    "Kp_A_per_mm": 0.03,
+    "Kd_As_per_mm": 0.0045,
+    "Tf_s": 0.004
+  },
+  "encoder_resolution_mm": 0.001,
+  "encoder_noise_mm": 0.0003,
+  "current_noise_A": 0.01,
+  "current_limit_A": [
+    -3.0,
+    3.0
+  ],
+  "test": {
+    "excitation": "logarithmic chirp",
+    "amplitude_A": 0.5,
+    "f0_Hz": 1.0,
+    "f1_Hz": 400.0,
+    "duration_s": 12
+  },
+  "columns": {
+    "time_s": "s",
+    "i_exc_A": "A",
+    "i_cmd_A": "A",
+    "x_mm": "mm"
+  },
+  "parameters": {
+    "Kt": 0.2,
+    "r": 0.015,
+    "m_L": 2.5
+  },
+  "units": {
+    "Kt": "N m/A",
+    "r": "m",
+    "m_L": "kg"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "source": "simulated",
+  "description": "Throttle step on a flat road, sedan (demo).",
+  "true_model": "m_eff dv/dt = F - 0.5 rho Cd A v^2 - Crr m g cos(th) - m g sin(th) - F_gust; tau_e dF/dt = Fmax u/100 - F (after a 0.1 s delay)",
+  "parameters": {
+    "m": 1550.0,
+    "m_eff": 1610.0,
+    "Cd": 0.29,
+    "A": 2.3,
+    "Crr": 0.01,
+    "Fmax": 1600.0,
+    "tau_e": 0.6,
+    "delay": 0.1,
+    "v0": 27.0
+  },
+  "vehicle": "mid-size sedan (demo)",
+  "linearized_about_v0": {
+    "b": 21.610799999999998,
+    "K": 0.7403705554630093,
+    "tau": 74.49978714346531,
+    "u0": 27.737550000000002
+  },
+  "units": {
+    "m": "kg",
+    "m_eff": "kg",
+    "A": "m^2",
+    "Fmax": "N",
+    "tau_e": "s",
+    "delay": "s",
+    "v0": "m/s",
+    "b": "N s/m",
+    "K": "(m/s)/%",
+    "tau": "s",
+    "u0": "%"
+  },
+  "test": {
+    "throttle_pct": [
+      28,
+      33
+    ],
+    "t_step_s": 20,
+    "road": "flat"
+  },
+  "sample_time_s": 0.1,
+  "wheel_speed_resolution_mps": 0.02777777777777778,
+  "wheel_speed_noise_std_mps": 0.02,
+  "gps_speed_noise_std_mps": 0.12,
+  "gust_force_std_N": 15.0,
+  "throttle_limits_pct": [
+    0.0,
+    100.0
+  ],
+  "seed": 301
+}

@@ -1,0 +1,25 @@
+{
+  "source": "simulated",
+  "description": "Board B under proportional control u = Kp (r - T), clipped to 0-100 %.",
+  "test": {
+    "controller": "P",
+    "Kp_pct_per_degC": 4.0,
+    "setpoint_C": 45.0
+  },
+  "sample_time_s": 1.0,
+  "sensor_noise_std_degC": 0.04,
+  "sensor_resolution_degC": 0.1,
+  "heater_limits_pct": [
+    0.0,
+    100.0
+  ],
+  "columns": {
+    "time_s": "s",
+    "setpoint_C": "degC",
+    "heater_pct": "%",
+    "T_C": "degC"
+  },
+  "given": {
+    "transport_delay_s": "about 6 (board documentation)"
+  }
+}

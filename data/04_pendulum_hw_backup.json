@@ -1,0 +1,18 @@
+{
+  "source": "simulated",
+  "description": "SIMULATED backup for students without a phone: pivot to phone centre 1.05 m, released from 25 deg, swinging toward/away from the screen.",
+  "format": "phyphox CSV export (comma, decimal point)",
+  "columns": {
+    "Time (s)": "s",
+    "Gyroscope x (rad/s)": "rad/s",
+    "Gyroscope y (rad/s)": "rad/s",
+    "Gyroscope z (rad/s)": "rad/s",
+    "Absolute (rad/s)": "rad/s"
+  },
+  "given": {
+    "d_m": 1.05,
+    "phone_h_m": 0.15,
+    "phone_w_m": 0.072,
+    "release_deg_approx": 25.0
+  }
+}

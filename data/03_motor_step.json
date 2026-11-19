@@ -1,0 +1,36 @@
+{
+  "source": "simulated",
+  "description": "Motor A (12 V, 30:1 gearmotor, 64 CPR encoder) voltage step 3 V -> 9 V, encoder logged at 1 kHz",
+  "model": "i: L di/dt = V(t - Ts) - R i - kt w_m;  w_m: J dw_m/dt = kt i - b w_m - Tc tanh(w_m/0.5);  theta_out = theta_m / N;  J = Jm + JL/N^2; encoder counts = floor(theta_out cpr/(2 pi))",
+  "parameters": {
+    "R": 2.4,
+    "L": 0.002,
+    "kt": 0.019,
+    "Jm": 3.3e-06,
+    "JL": 0.002,
+    "N": 30,
+    "b": 2e-06,
+    "Tc": 0.002,
+    "cpr_m": 64,
+    "V_max": 12.0,
+    "Ts": 0.001
+  },
+  "counts_per_rev": 1920,
+  "sample_time_s": 0.001,
+  "step_V": [
+    3.0,
+    9.0
+  ],
+  "step_time_s": 0.3,
+  "true_reduced_model": {
+    "K_rad_per_s_per_V": 1.7313650446509934,
+    "tau_s": 0.03623109167122289,
+    "poles_of_full_model": [
+      -1172.1046935412312,
+      -28.257479496997995,
+      0.0
+    ]
+  },
+  "nonidealities": "encoder quantization, 1-sample PWM update delay, 0.5 % PWM amplitude ripple, Coulomb friction (equivalent 0.25 V), electrical lag L/R",
+  "seed": 303
+}

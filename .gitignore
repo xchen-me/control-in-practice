@@ -1,0 +1,29 @@
+# Run output and caches
+out/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.venv/
+.DS_Store
+
+# Local backups
+backups_2026-11-19/
+
+# Generated HTML (python tools/make_index.py builds them from the .md files)
+index.html
+labs/*/README.html
+labs/*/homework.html
+docs/page.css
+
+# Internal authoring notes and website tooling (not lab materials)
+docs/LAB_BRIEF.md
+docs/FIGURE_BRIEF.md
+tools/make_site_manifest.py
+
+# LaTeX build leftovers (tools/build_figures.sh)
+labs/*/figures/*.aux
+labs/*/figures/*.log
+
+# Students' own phone recordings
+data/04_pendulum_my_recording.*

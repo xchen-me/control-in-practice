@@ -1,0 +1,120 @@
+% Author: Xu Chen, University of Washington
+% Lab 05 scene: two-wheeled balancing robot R1 (demos), pushed by a finger; the PD pitch loop.
+\documentclass[border=4pt]{standalone}
+\input{../../../docs/figures/cipstyle}
+\begin{document}
+\begin{tikzpicture}
+% ------------------------------------------------------------------ (a) the scene
+\node[panel title] at (0,7.15) {(a) The scene};
+\def\lean{12}
+\coordinate (ax) at (3.6,0.95);
+% floor
+\fill[ground] (0.2,-0.05) rectangle (7.9,0.27);
+\draw[thick line, steel] (0.2,0.27) -- (7.9,0.27);
+% vertical reference through the axle
+\draw[thin line, note, dashed] (ax) -- ++(0,5.2);
+\begin{scope}[shift={(ax)}, rotate=\lean]
+  % body (chassis box with battery, boards)
+  \draw[fill=metal!45, thick line] (-0.62,-0.25) rectangle (0.62,4.6);
+  % IMU board
+  \draw[fill=sensorc, draw=ink] (-0.38,3.35) rectangle (0.38,3.8);
+  \node[font=\scriptsize] at (0,3.575) {IMU};
+  \coordinate (imu) at (0.38,3.575);
+  % COM
+  \coordinate (com) at (0,2.0);
+  \coordinate (push) at (-0.62,4.0);
+  % l dimension along the right face
+  \draw[dim] (0.85,0) -- node[right=-1pt, font=\footnotesize] {$l$} (0.85,2.0);
+  \draw[thin line, note] (0.66,0) -- (0.95,0) (0.66,2.0) -- (0.95,2.0);
+\end{scope}
+% wheel (in front of the body)
+\draw[thick line, fill=white] (ax) circle (0.68);
+\draw[thin line, steel] (ax) circle (0.52);
+\fill (ax) circle (1.4pt);
+% COM symbol and gravity
+\draw[dist, force] (com) -- ++(0,-1.15) node[right=0pt, font=\footnotesize] {$m_b g$};
+\fill[white] (com) circle (0.13); \draw[thin line] (com) circle (0.13);
+\fill (com) -- ++(0.13,0) arc (0:90:0.13) -- cycle;
+\fill (com) -- ++(-0.13,0) arc (180:270:0.13) -- cycle;
+\draw[thin line, note] (com) ++(-0.16,0) -- ++(-1.15,-0.1) node[left=-1pt, font=\footnotesize, ink, align=right] {COM\\$m_b,\ I_b$};
+% pitch angle
+\draw[->, accent, thick line] ($(ax)+(90:5.0)$) arc (90:90+\lean:5.0);
+\node[accent] at ($(ax)+(90+\lean/2:5.35)$) {$\theta$};
+\node[caption, anchor=west] at ($(ax)+(0.12,5.25)$) {$\theta>0$: leaning back};
+% wheel torque on the wheel (drives it forward, +x) and reaction on the body
+\draw[act, thick line, ->] ($(ax)+(150:0.36)$) arc (150:-100:0.36);
+\node[act, font=\footnotesize] at ($(ax)+(-0.95,-0.42)$) {$\tau$};
+\draw[act, thick line, ->, dashed] ($(ax)+(118:1.05)$) arc (118:158:1.05);
+\node[act, font=\footnotesize, anchor=east] at ($(ax)+(-1.05,0.75)$) {$-\tau$ on body};
+% wheel coordinate
+\draw[->] ($(ax)+(0.75,0)$) -- ++(1.3,0) node[right, font=\footnotesize] {$x$};
+\node[caption, anchor=south west] at ($(ax)+(0.8,0.1)$) {wheels roll freely\\(no position loop)};
+% IMU callout
+\draw[thin line, note] (imu) -- ++(1.25,0.55) node[right, font=\footnotesize, ink, align=left]
+  {IMU: gyro $\dot\theta$ + accel tilt\\[-1pt]\scriptsize\color{note}complementary filter $\to\hat\theta$};
+% finger / hand pushing at the top (forward push, +x)
+\begin{scope}[shift={(push)}]
+  \draw[fill=white, line width=0.7pt, rounded corners=2.5pt]
+    (0,-0.05) -- (-1.05,-0.07) -- (-1.15,0.12) -- (-1.15,0.24) -- (-0.02,0.25) .. controls (0.06,0.22) and (0.06,0.0) .. (0,-0.05);
+  \draw[fill=white, line width=0.7pt, rounded corners=4pt]
+    (-1.1,0.3) -- (-1.1,-0.55) -- (-1.75,-0.65) -- (-2.05,-0.25) -- (-2.05,0.45) -- (-1.45,0.5) -- cycle;
+  \draw[thin line, rounded corners=2pt] (-1.12,-0.18) -- (-0.75,-0.25) -- (-0.75,-0.42) -- (-1.12,-0.46);
+  \draw[distsig] (-1.3,0.85) -- (-0.05,0.85) node[midway, above=-1pt, font=\footnotesize] {push $F$};
+\end{scope}
+\node[caption, anchor=north west] at ($(push)+(-2.4,-0.75)$) {pushes at 3\,s, 6.5\,s\\(force not logged)};
+% parameters and log
+\node[caption, anchor=north west] at (5.15,3.45) {R1: $m_b=1.0$\,kg, $l=0.10$\,m\\wheels $r=34$\,mm\\torque limit $\pm0.5$\,N\,m\\loop 200\,Hz};
+
+% ------------------------------------------------------------------ (b) the control problem
+\begin{scope}[shift={(8.75,0)}]
+\node[panel title] at (0,7.15) {(b) The control problem: PD pitch loop};
+\def\ya{5.75} \def\yb{3.85}
+\node[sum] (s1) at (0.55,\ya) {};
+\node[ctrl, minimum width=14mm] (pd) at (2.0,\ya) {PD\\[-1pt]$C(z)$};
+\node[sum] (s2) at (3.3,\ya) {};
+\node[block, minimum width=11mm] (sat) at (4.45,\ya) {};
+\draw[thick line] ($(sat)+(-0.4,-0.25)$) -- ($(sat)+(-0.15,-0.25)$) -- ($(sat)+(0.15,0.25)$) -- ($(sat)+(0.4,0.25)$);
+\node[block, minimum width=11mm] (del) at (5.85,\ya) {$z^{-n}$};
+\node[plant, minimum width=17mm] (G) at (7.75,\ya) {$\dfrac{b_0}{s^2-p^2}$};
+\node[sensor, minimum width=14mm] (imu) at (7.75,\yb) {IMU};
+\node[sensor, minimum width=22mm] (cf) at (4.45,\yb) {compl. filter\\[-1pt]$\alpha=0.98$};
+\draw[sig] (-0.6,\ya) node[above right=-1pt, font=\footnotesize] {$0$} -- (s1);
+\draw[sig] (s1) -- (pd);
+\draw[sig] (pd) -- (s2);
+\draw[sig] (s2) -- (sat);
+\draw[sig] (sat) -- (del);
+\draw[sig] (del) -- node[above=-1pt, font=\footnotesize] {$\tau$} (G);
+\draw[sig] (G) -- node[right=-1pt, font=\footnotesize] {$\theta$} (imu);
+\draw[sig] (imu) -- node[above=-1pt, font=\footnotesize] {gyro, acc} (cf);
+\draw[sig] (cf) -| node[pos=0.25, below=-1pt, font=\footnotesize] {$\hat\theta$} node[pos=0.92, left=-1pt, font=\footnotesize] {$-$} (s1);
+% inputs: dither, push, IMU noise
+\draw[sig] (3.3,\ya+0.95) node[left, font=\footnotesize] {PRBS dither} -- (s2);
+\draw[distsig] (7.75,\ya+1.0) node[left, font=\footnotesize, dist] {push} -- (G);
+\draw[distsig] (7.75,\yb-1.0) node[left, font=\footnotesize, dist] {IMU noise, gyro bias} -- (imu);
+% annotations
+\node[caption, anchor=north, align=center] at (2.0,\ya-0.5) {$K_p{=}1.38$\,N\,m/rad\\$K_d{=}0.0585$\,N\,m\,s/rad\\$T_s{=}T_f{=}5$\,ms};
+\node[caption, anchor=south, align=center] at (4.45,\ya+0.5) {$\pm0.5$\,N\,m\\8-bit PWM};
+\node[caption, anchor=south, align=center] at (5.85,\ya+0.5) {delay\\$n{=}1$};
+\node[caption, anchor=north, align=center] at (5.85,\ya-0.5) {firmware v2:\\$n{=}6$ (30\,ms)};
+% s-plane inset: one unstable pole
+\begin{scope}[shift={(1.45,1.7)}]
+  \fill[dist!8] (0,-0.8) rectangle (1.35,0.8);
+  \draw[->, thin line] (-1.4,0) -- (1.45,0) node[right, font=\scriptsize] {Re};
+  \draw[->, thin line] (0,-0.85) -- (0,0.9) node[above, font=\scriptsize] {Im};
+  \draw[thick line] (-0.95,0) ++(-0.09,-0.09) -- ++(0.18,0.18) ++(0,-0.18) -- ++(-0.18,0.18);
+  \draw[thick line, dist] (0.95,0) ++(-0.09,-0.09) -- ++(0.18,0.18) ++(0,-0.18) -- ++(-0.18,0.18);
+  \node[font=\scriptsize, below] at (-0.95,-0.1) {$-p$};
+  \node[font=\scriptsize, below, dist] at (0.95,-0.1) {$+p$};
+  \node[caption, anchor=north, align=center] at (0.05,-0.85) {open loop: one unstable pole,\\$p=13.2$\,rad/s, $b_0=631$};
+\end{scope}
+% goal / data box
+\node[draw=accent, thin line, rounded corners=2pt, fill=white, align=left, anchor=north west, font=\footnotesize,
+      text width=5.05cm, inner sep=4pt] at (3.55,2.4)
+  {\textbf{Goal:} stay upright through pushes.\\
+   P cannot; PD for $\zeta{=}0.7$, $\omega_n{=}2p$.\\
+   $P{=}1$: one CCW encirclement of $-1$.\\
+   Phase margin $\to$ largest loop delay.\\[2pt]
+   {\scriptsize\color{note}data: \texttt{05\_balance\_drop}, \texttt{\_push}, \texttt{\_tipover}}};
+\end{scope}
+\end{tikzpicture}
+\end{document}

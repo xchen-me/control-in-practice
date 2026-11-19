@@ -1,0 +1,49 @@
+# Author: Xu Chen, University of Washington
+# %% [markdown]
+# # Lab 02 homework starter: SUV cruise control
+#
+# ![scene](figures/scene_hw.png)
+#
+# Loads both logs, plots them, and leaves the analysis to you (see homework.md). Runs as shipped.
+
+# %%
+import numpy as np
+import control as ct
+import matplotlib.pyplot as plt
+from ctrlprac import data, ident, sim
+
+TS = 0.1                                   # s
+m, m_eff, Cd, A, Crr, Fmax, rho, g = 2050.0, 2130.0, 0.35, 2.8, 0.011, 2200.0, 1.2, 9.81
+step, _ = data.load('02_hw_step')
+gp, _ = data.load('02_hw_grade_p')
+
+fig, ax = plt.subplots(2, 2, figsize=(10, 6), sharex='col')
+for a, df, title in ((ax[:, 0], step, '02_hw_step'), (ax[:, 1], gp, '02_hw_grade_p (Kp = 8 %/(m/s))')):
+    a[0].plot(df['time_s'], df['speed_gps_mps'], '.', ms=1, color='0.7', label='GPS')
+    a[0].plot(df['time_s'], df['speed_wheel_mps'], '.', ms=1, color='C0', label='wheel')
+    a[0].set_ylabel('speed [m/s]'); a[0].set_title(title); a[0].legend(fontsize=8)
+    a[1].plot(df['time_s'], df['throttle_pct'], 'k', lw=.8); a[1].set_ylabel('throttle [%]')
+    a[1].set_xlabel('time [s]')
+for a in ax.ravel():
+    a.grid(alpha=.3)
+fig.tight_layout()
+plt.show()
+
+# %% Problem 1: physics vs data
+# TODO: b = rho Cd A v0, K = (Fmax/100)/b, tau = m_eff/b, trim throttle u0
+# TODO: fit = ident.fit_fopdt(t, v, du, t_step) for the wheel-speed and the GPS columns
+
+# %% Problem 2: infer the grade from the P-control log
+# TODO: steady speed drop and throttle increase; |d| = dv (1 + K Kp)/K; grade from m g sin = |d| Fmax/100
+
+# %% Problem 3: P gain and PI zero on the root locus
+# TODO: Gp = G * ct.tf(*ct.pade(theta, 1)); Kc for zeta = 0.7; sweep z, PM and recovery time
+
+# %% Problem 4: lag vs PI
+# TODO: sim.LTIController(Kc * ct.tf([1, z], [1, z / 10]), TS, u_lim=(-u0, 100 - u0))
+
+# %% Problem 5: steep hill and windup
+# TODO: 10 % grade from 20 to 85 s; sim.PID(..., antiwindup=True / False)
+
+# %% Problem 6: sensor noise and recommendation
+# TODO: noise of each speed signal on the flat part (t < 60 s) of 02_hw_grade_p, throttle noise ~ Kc sigma

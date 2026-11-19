@@ -1,0 +1,83 @@
+# Lab 05: two-wheeled balancing robot (pitch loop)
+
+A hobby-class two-wheeled robot balances by driving its wheels under its centre of mass. Near upright
+the pitch dynamics are an inverted pendulum with one right-half-plane pole, so P control can not work,
+the Nyquist plot must encircle -1 once counter-clockwise, the gain margin becomes a range, and the phase
+margin sets the largest loop delay the firmware may have. The logs show a robot that balances through
+two pushes, and the same robot tipping over after a firmware change added delay.
+
+![scene](figures/scene.png)
+
+## System and parameters
+
+Body (mass m_b, centre of mass at height l above the axle, inertia I_b about the COM) on two wheels
+(total mass m_w, radius r) driven by a torque tau. Wheels roll without slip and are free (no position
+loop: this lab is the pitch loop only). Linearizing the wheel and body equations and eliminating the
+wheel position:
+
+    G(s) = theta(s)/tau(s) = b0 / (s^2 - p^2),   p^2 = a b g/(a c - b^2),   b0 = (a + b/r)/(a c - b^2)
+    a = m_w + I_w/r^2 + m_b,   b = m_b l,   c = I_b + m_b l^2,   I_w = m_w r^2/2
+
+Sign convention: theta > 0 when the body leans backward, tau > 0 drives the wheels forward; then b0 > 0
+and the usual negative feedback tau = -C(s) theta balances.
+
+| | robot R1 (demos) | robot R2 (homework) |
+|---|---|---|
+| body mass m_b | 1.0 kg | taller and heavier than R1 |
+| axle-to-COM l | 0.10 m | |
+| body inertia I_b (box 0.22 x 0.06 m) | 4.3e-3 kg m^2 | |
+| wheels m_w, r | 0.10 kg, 34 mm | larger wheels |
+| torque limit (both motors) | +/-0.5 N m | +/-1.2 N m |
+| p, b0 | 13.2 rad/s, 631 | identify from the logs |
+
+Representative values for small geared-DC-motor balancing robots, not a specific product.
+Sensing and firmware: 200 Hz loop; MEMS IMU (gyro noise 0.1 deg/s, bias 0.4 deg/s; accelerometer tilt
+noise 0.3 deg), complementary filter alpha = 0.98; PD from `ctrlprac.sim.PID` with a filtered
+backward-difference derivative (Tf = 5 ms); one sample of sensor + computation delay; 8-bit PWM torque
+command. Logs are simulated with the nonlinear equations (sin theta, RK4) and marked `"source":
+"simulated"`; the acceleration error of the accelerometer is not modelled.
+
+## Data
+
+| file | content |
+|---|---|
+| `05_balance_drop` | R1, motors off, released near upright until the 30 deg stand |
+| `05_balance_push` | R1 balancing, pushed at 3 s and 6.5 s, PRBS torque dither for identification |
+| `05_balance_tipover` | R1, firmware v2 with 6 samples (30 ms) of loop delay: tips over |
+| `05_hw_*` | the same three tests on robot R2 (homework) |
+
+Columns: `time_s, theta_deg` (complementary filter), `gyro_dps, acc_tilt_deg, tau_cmd_Nm` (+ `dither_Nm`).
+
+## Tool map
+
+| step | course tool | lecture |
+|---|---|---|
+| inverted-pendulum model, RHP pole | modeling, transfer function | L3, L4 |
+| p from the drop test | exponential modes, least squares | L5, L6 |
+| b0 from the closed-loop log (with dither) | equation-error least squares | L3 |
+| P control fails | root locus of b0 K/(s^2 - p^2) | L13 |
+| stabilizing PD range | Routh-Hurwitz | L10, L11 |
+| PD gains for zeta = 0.7, omega_n = 2p | root locus, angle/magnitude conditions, extra filter pole | L13-L17 |
+| Bode of an unstable plant | same magnitude as b0/(s+p)^2, different phase | L22 Part 3 |
+| stability with P = 1 | Nyquist criterion, one CCW encirclement | L23, L24 |
+| lower and upper gain margin, PM | margins on the Nyquist/Bode plot | L26 |
+| maximum loop delay | delay margin PM/omega_c, checked with `simulate_loop` and the tip-over log | L26 |
+
+## Scripts
+
+- `demo_balance_1_model.py`: model, drop-test and closed-loop identification, P fails, Routh range.
+- `demo_balance_2_rootlocus_bode.py`: PD design on the root locus; Bode of the unstable plant.
+- `demo_balance_3_nyquist_delay.py`: Nyquist with P = 1, two gain margins, PM, delay limit, simulations
+  below/above the limit, the logged tip-over.
+- `homework.md`, `hw_starter.py`: robot R2.
+- `_model.py` (physics, nonlinear simulator, margin helpers), `_make_data.py` (regenerates the logs).
+
+Key results for R1 (firmware gains Kp = 1.38 N m/rad, Kd = 0.0585 N m s/rad): PM = 29 deg at 6.7 Hz,
+gain may drop to 22 % or rise 2.7x, total loop delay limit 19.6 ms (3 samples stable, 4 unstable); the
+30 ms firmware tips over with a 33 rad/s growing oscillation, as the model predicts.
+
+## Run
+
+    docker compose run --rm lab python run_all.py 05_          # in the image (see Dockerfile)
+    PYTHONPATH=. python run_all.py 05_                          # locally, from control-in-practice/
+    PYTHONPATH=. python labs/05_balance/_make_data.py           # regenerate data/05_*

@@ -1,0 +1,32 @@
+{
+  "source": "simulated",
+  "description": "Robot R2 (homework), same PD gains, firmware v2 with blocking telemetry: loop delay 7 samples, started from upright with no push. The robot tips over; the log ends when the 45 deg tilt cutoff trips.",
+  "robot": "R2",
+  "sample_time_s": 0.005,
+  "imu": {
+    "gyro_noise_dps": 0.1,
+    "gyro_bias_dps": 0.4,
+    "acc_noise_deg": 0.3,
+    "alpha": 0.98
+  },
+  "sign_convention": "theta > 0 when the body leans backward; tau > 0 drives the wheels forward",
+  "test": {
+    "Kp_Nm_per_rad": 3.6,
+    "Kd_Nms_per_rad": 0.17,
+    "Tf_s": 0.005,
+    "loop_delay_samples": 7,
+    "loop_delay_ms": 35.0,
+    "release_deg": 0.1
+  },
+  "columns": {
+    "time_s": "s",
+    "theta_deg": "deg (complementary filter)",
+    "gyro_dps": "deg/s",
+    "acc_tilt_deg": "deg",
+    "tau_cmd_Nm": "N m"
+  },
+  "given": {
+    "torque_limit_Nm": 1.2,
+    "pwm_bits": 8
+  }
+}

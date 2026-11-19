@@ -1,0 +1,123 @@
+% Author: Xu Chen, University of Washington
+% Lab 04 scene: a phone hung on a string from a door frame, swinging in the plane of its screen, phyphox
+% recording the gyroscope; the measurement chain from the swing to zeta and omega_n.
+% scene_hw.tex defines \cipHW and inputs this file: same drawing, homework numbers only.
+\documentclass[border=4pt]{standalone}
+\input{../../../docs/figures/cipstyle}
+\ifdefined\cipHW
+  \newcommand{\titletxt}{your phone (homework)}
+  \newcommand{\dtxt}{$d$: tape, ${\pm}0.5$\,cm}
+  \newcommand{\phonetxt}{$h$, $w$: measure the phone}
+  \newcommand{\reltxt}{pull aside 20--30$^\circ$, hold 3\,s,\\ release; record 3\,min}
+  \newcommand{\datatxt}{data: \texttt{04\_pendulum\_my\_recording}\\ {\color{note}\scriptsize(no phone only: \texttt{04\_pendulum\_hw\_backup}, simulated, $d=1.05$\,m)}}
+\else
+  \newcommand{\titletxt}{simulated sample (demos)}
+  \newcommand{\dtxt}{$d=0.75$\,m}
+  \newcommand{\phonetxt}{$h\times w=0.150\times 0.072$\,m}
+  \newcommand{\reltxt}{released from $35^\circ$ after\\ 3\,s still; 3\,min at 100\,Hz}
+  \newcommand{\datatxt}{data: \texttt{04\_pendulum\_sample} (simulated)}
+\fi
+\begin{document}
+\begin{tikzpicture}
+% ======================= (a) the scene =======================
+\node[panel title] at (0,7.75) {(a) The scene: \titletxt};
+% door frame
+\fill[ground] (0.05,7.0) rectangle (5.05,7.25);
+\draw[thick line] (0.05,7.0) -- (5.05,7.0);
+\draw[thick line] (0.25,7.0) -- (0.25,1.0);
+\draw[thick line] (4.85,7.0) -- (4.85,1.0);
+\draw[thin line, steel] (0.05,1.0) -- (5.05,1.0);
+\node[font=\footnotesize, note, anchor=north, align=center] at (2.55,0.95) {door frame (or rod, hook);\\ swing over a bed or sofa};
+% pivot (hook)
+\draw[thick line] (2.2,7.0) -- (2.2,6.88) arc[start angle=90, end angle=-200, radius=0.08];
+\coordinate (O) at (2.2,6.8);
+\fill (O) circle (0.035);
+\node[font=\footnotesize, anchor=east] at (2.05,6.8) {pivot};
+% vertical reference and angle
+\def\th{22}
+\def\dd{3.9}
+\draw[thin line, note, dashed] (O) -- ++(0,-5.0);
+\coordinate (C) at ($(O)+(-90+\th:\dd)$);
+\draw[accent, thin line, ->] ($(O)+(0,-1.35)$) arc[start angle=-90, end angle=-90+\th, radius=1.35];
+\node[accent] at ($(O)+(-90+\th/2:1.62)$) {$\theta$};
+% string to the top of the phone
+\draw[ink] (O) -- ($(C)+(90+\th:0.68)$);
+% phone (drawn larger than to scale), rotated by theta about its centre
+\begin{scope}[shift={(C)}, rotate=\th]
+  \draw[fill=metal, rounded corners=2pt] (-0.34,-0.68) rectangle (0.34,0.68);
+  \draw[fill=white, thin line] (-0.27,-0.56) rectangle (0.27,0.56);
+  \draw[->, accent, thick line] (0,0) -- (0.62,0) node[right, font=\footnotesize] {$x$};
+  \draw[->, accent, thick line] (0,0) -- (0,0.4);
+  \node[accent, font=\footnotesize] at (-0.15,0.3) {$y$};
+  \draw[accent, thin line, fill=white] (0,0) circle (0.09); \fill[accent] (0,0) circle (0.035);
+  \draw[dim] (-0.5,-0.68) -- node[left, font=\footnotesize, ink] {$h$} (-0.5,0.68);
+  \draw[dim] (-0.34,-0.84) -- node[below, font=\footnotesize, ink] {$w$} (0.34,-0.84);
+\end{scope}
+\node[accent, font=\footnotesize] at ($(C)+(-0.1,-0.22)$) {$z$};
+% d dimension parallel to the string
+\draw[dim] ($(O)+(\th:0.4)$) -- node[sloped, above, font=\footnotesize, ink] {$d$} ($(C)+(\th:0.4)$);
+% gravity at the centre and the swing
+\draw[force, dist] ($(C)+(0,-0.12)$) -- ++(0,-0.95) node[left, font=\footnotesize] {$mg$};
+\draw[<->, thin line] ($(O)+(-90-16:\dd+1.6)$) arc[start angle=-90-16, end angle=-90+26, radius=\dd+1.6];
+\node[font=\footnotesize, note, anchor=south] at ($(O)+(-90-16:\dd+1.6)+(0.3,0.08)$) {swing};
+
+% right column: numbers, axes, gyro
+\begin{scope}[shift={(5.3,0)}]
+\node[font=\footnotesize, align=left, anchor=north west] at (0,7.1)
+  {\dtxt\\ (pivot to phone centre)\\ \phonetxt\\[3pt]
+   $L_\text{eq}=d+\dfrac{h^2+w^2}{12\,d}$\\[3pt] $\omega_n\approx\sqrt{g/L_\text{eq}}$};
+\node[font=\footnotesize, align=left, anchor=north west, accent] at (0,4.62)
+  {phone axes: $z$ out of\\ the screen; swing in the\\ screen plane: $\omega_z=\dot\theta$};
+\node[font=\footnotesize, anchor=north west, align=left] at (0,3.62) {phyphox: Gyroscope\\ (rotation rate)};
+\begin{scope}[shift={(0.15,1.85)}]
+  \draw[->, thin line] (0,0) -- (3.2,0) node[right, font=\scriptsize] {$t$};
+  \draw[->, thin line] (0,-0.6) -- (0,0.7) node[right, font=\scriptsize] {$\omega_z$};
+  \draw[accent, line width=0.6pt] (0,0.02) -- (0.6,0.02)
+    -- plot[domain=0.6:3.05, samples=240] (\x,{-0.55*exp(-0.9*(\x-0.6))*sin(deg(13*(\x-0.6)))});
+  \node[font=\scriptsize, note, anchor=south] at (0.3,0.05) {hold};
+  \node[font=\scriptsize, note, anchor=west] at (0.75,0.5) {release, free decay};
+\end{scope}
+\node[caption, anchor=north west] at (0,1.1) {\reltxt};
+\end{scope}
+
+% ======================= (b) the measurement problem =======================
+\begin{scope}[shift={(9.2,0)}]
+\node[panel title] at (0,7.75) {(b) The problem: measure $\zeta$ and $\omega_n$};
+\tikzset{cb/.style={block, minimum width=1.3cm, minimum height=0.95cm, inner sep=2pt, font=\footnotesize}}
+\node[plant, cb] (pend) at (0.8,6.15) {swing\\ $\theta(0)=\theta_0$};
+\node[font=\scriptsize, anchor=north west] at (0.05,5.6) {$\ddot\theta+2\zeta\omega_n\dot\theta+\omega_n^2\theta=0$};
+\node[sum] (s) at (2.15,6.15) {};
+\draw[sig] (pend) -- node[above] {$\dot\theta$} (s);
+\draw[distsig] (2.15,7.05) node[left, font=\footnotesize] {bias $b$, noise $n$} -- (s);
+\node[sensor, cb] (gyro) at (3.45,6.15) {gyro $z$\\ quantized};
+\draw[sig] (s) -- (gyro);
+\node[sensor, cb] (csv) at (5.3,6.15) {phyphox\\ CSV};
+\draw[sig] (gyro) -- node[above] {$\omega_z$} (csv);
+\node[block, cb] (load) at (5.3,4.35) {pick axis,\\ resample};
+\draw[sig] (csv) -- node[right, font=\scriptsize] {$t$, $\omega_{x,y,z}$} (load);
+\node[block, cb, minimum width=1.9cm] (int) at (2.95,4.35) {$-\hat b$ (still 3\,s),\\ $\int\!dt$};
+\draw[sig] (load) -- (int);
+\draw[thick line] (int) -- (1.3,4.35);
+\node[font=\footnotesize, anchor=south] at (1.6,4.35) {$\theta(t)$};
+\node[ctrl, cb, minimum width=2.3cm] (ld) at (1.3,2.95) {log decrement\\ (peaks)};
+\node[ctrl, cb, minimum width=2.3cm] (fit) at (4.0,2.95) {2nd-order fit\\ (free decay)};
+\draw[sig] (1.3,4.35) -- (ld);
+\draw[sig] (1.3,3.85) -| (fit);
+\node[font=\footnotesize] (est) at (6.1,2.95) {$\hat\zeta,\ \hat\omega_n$};
+\draw[sig] (fit) -- (est);
+\draw[sig] (ld.south) -- ++(0,-0.2) -| (est.south);
+% s-plane inset
+\begin{scope}[shift={(7.75,5.0)}]
+  \draw[->, thin line] (-1.0,0) -- (0.3,0) node[right, font=\scriptsize] {Re};
+  \draw[->, thin line] (0,-0.95) -- (0,1.0) node[above, font=\scriptsize] {Im};
+  \foreach \y in {0.7,-0.7} \draw[thick line, accent] (-0.3,\y) +(-0.07,-0.07) -- +(0.07,0.07) +(-0.07,0.07) -- +(0.07,-0.07);
+  \node[font=\scriptsize, anchor=north, align=center] at (-0.35,-1.0) {poles\\ $-\zeta\omega_n\pm j\omega_d$};
+\end{scope}
+% goal box
+\node[draw=accent, rounded corners=2pt, align=left, font=\footnotesize, anchor=north west, inner sep=4pt,
+  text width=8.1cm] at (0,2.05) {\textbf{Estimate} $\zeta,\omega_n$ two ways; compare with $\sqrt{g/d}$, $\sqrt{g/L_\text{eq}}$;\\
+  check $T_s\approx 4/(\zeta\omega_n)$; period and damping vs amplitude.\\[2pt]
+  \datatxt};
+\end{scope}
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,35 @@
+% Author: Xu Chen, University of Washington
+% Shared TikZ style for the Control in Practice scene figures. \input{../../../docs/figures/cipstyle} from a lab.
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage[siunitx]{circuitikz}
+\usetikzlibrary{arrows.meta,calc,positioning,decorations.pathmorphing,decorations.markings,patterns,shapes.geometric,shadings,fit,backgrounds}
+% restrained palette
+\definecolor{ink}{HTML}{1A1A1A}
+\definecolor{steel}{HTML}{8C96A0}
+\definecolor{metal}{HTML}{D5DAE0}
+\definecolor{accent}{HTML}{1F4E79}   % controller, signals we choose
+\definecolor{plantc}{HTML}{FBE7D6}   % plant fill
+\definecolor{sensorc}{HTML}{DCE8F3}  % sensor fill
+\definecolor{dist}{HTML}{B03A2E}     % disturbances, forces from the environment
+\definecolor{act}{HTML}{2E7D4F}      % actuation
+\definecolor{note}{HTML}{555555}
+\tikzset{
+  every picture/.style={line width=0.8pt, >={Stealth[length=2.4mm]}, font=\small},
+  thin line/.style={line width=0.5pt},
+  thick line/.style={line width=1.2pt},
+  dim/.style={thin line, note, {Stealth[length=1.6mm]}-{Stealth[length=1.6mm]}},
+  ground/.style={pattern=north east lines, pattern color=steel, draw=none},
+  block/.style={draw=ink, rounded corners=1.5pt, minimum height=9mm, minimum width=16mm, align=center, fill=white},
+  plant/.style={block, fill=plantc},
+  sensor/.style={block, fill=sensorc},
+  ctrl/.style={block, draw=accent, text=accent, thick line},
+  sum/.style={draw=ink, circle, minimum size=5mm, inner sep=0pt},
+  sig/.style={->, ink},
+  distsig/.style={->, dist, thick line},
+  force/.style={-{Stealth[length=3mm]}, thick line},
+  panel title/.style={font=\normalsize\bfseries, anchor=west, ink},
+  caption/.style={font=\footnotesize, note, align=left},
+}

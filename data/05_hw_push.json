@@ -1,0 +1,39 @@
+{
+  "source": "simulated",
+  "description": "Robot R2 (homework) balancing under PD control; pushed forward at the top at t = 3 s and backward at t = 6.5 s (push force not logged).",
+  "robot": "R2",
+  "sample_time_s": 0.005,
+  "imu": {
+    "gyro_noise_dps": 0.1,
+    "gyro_bias_dps": 0.4,
+    "acc_noise_deg": 0.3,
+    "alpha": 0.98
+  },
+  "sign_convention": "theta > 0 when the body leans backward; tau > 0 drives the wheels forward",
+  "test": {
+    "controller": "PD, tau = -(Kp theta + Kd dtheta/dt filtered), derivative filter Tf",
+    "Kp_Nm_per_rad": 3.6,
+    "Kd_Nms_per_rad": 0.17,
+    "Tf_s": 0.005,
+    "loop_delay_samples": 1,
+    "push_t_s": [
+      3.0,
+      6.5
+    ],
+    "push_duration_s": 0.1,
+    "dither_Nm": 0.12,
+    "dither_bit_s": 0.02
+  },
+  "columns": {
+    "time_s": "s",
+    "theta_deg": "deg (complementary filter)",
+    "gyro_dps": "deg/s",
+    "acc_tilt_deg": "deg",
+    "tau_cmd_Nm": "N m",
+    "dither_Nm": "N m"
+  },
+  "given": {
+    "torque_limit_Nm": 1.2,
+    "pwm_bits": 8
+  }
+}

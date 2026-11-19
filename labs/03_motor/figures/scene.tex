@@ -1,0 +1,132 @@
+% Author: Xu Chen, University of Washington
+% Lab 03 scene: DC gearmotor with encoder turning an arm; position loop with PWM limit, delay, quantization.
+% scene_hw.tex defines \cipHW and inputs this file: same drawing, homework (Motor B) numbers only.
+\documentclass[border=4pt]{standalone}
+\input{../../../docs/figures/cipstyle}
+\ifdefined\cipHW
+  \newcommand{\unitname}{Motor B (homework)}
+  \newcommand{\Nval}{50}\newcommand{\cprm}{48}\newcommand{\cpro}{2400}
+  \newcommand{\frictxt}{$J_m,\ b$;\\ Coulomb friction not listed}
+  \newcommand{\logname}{03\_motor\_hw\_step}\newcommand{\steptxt}{2\,V $\to$ 7\,V}
+  \newcommand{\specs}{move $r=0.3$\,rad: overshoot $\le 4\,\%$,\\ $T_{s,2\%}\le 0.15$\,s, $|V|\le 12$\,V\\
+    load $T_L=0.8$\,N\,m: $|\theta|\le 0.005$\,rad}
+\else
+  \newcommand{\unitname}{Motor A (demos)}
+  \newcommand{\Nval}{30}\newcommand{\cprm}{64}\newcommand{\cpro}{1920}
+  \newcommand{\frictxt}{$J_m,\ b,\ T_c$ (Coulomb)}
+  \newcommand{\logname}{03\_motor\_step}\newcommand{\steptxt}{3\,V $\to$ 9\,V}
+  \newcommand{\specs}{move $r=0.5$\,rad: overshoot $\le 5\,\%$,\\ $T_{s,2\%}\le 0.15$\,s, $|V|\le 12$\,V\\
+    ramp 2\,rad/s: error $\le 0.01$\,rad;\ load $T_L=0.3$\,N\,m}
+\fi
+\begin{document}
+\begin{tikzpicture}
+% ======================= (a) the scene =======================
+\node[panel title] at (0,7.75) {(a) The scene: \unitname};
+
+% ---- armature circuit: PWM driver -> R -> L -> motor (back-emf)
+\node[draw=ink, fill=white, minimum width=1.25cm, minimum height=2.0cm, align=center, font=\footnotesize]
+  (drv) at (0.65,4.6) {PWM\\H-bridge\\[2pt]{\color{act}$|V|\le 12$\,V}};
+\draw (drv.north east) ++(0,-0.35) coordinate (pt);
+\draw (drv.south east) ++(0,0.35) coordinate (pb);
+\node[font=\scriptsize] at ($(pt)+(-0.15,0)$) {$+$};
+\node[font=\scriptsize] at ($(pb)+(-0.15,0)$) {$-$};
+\draw (pt) -- (1.5,5.25) to[R, l=$R$, i>^=$i$] (2.95,5.25) to[L, l=$L$] (4.1,5.25) -- (4.1,5.05);
+\draw (pb) -- (1.5,3.95) -- (4.1,3.95) -- (4.1,4.15);
+\node[draw=ink, circle, minimum size=0.9cm, fill=white, thick line] (mot) at (4.1,4.6) {$M$};
+\node[font=\scriptsize] at (3.68,4.95) {$+$};
+\node[font=\scriptsize] at (3.68,4.25) {$-$};
+\node[font=\footnotesize, anchor=east] at (3.55,4.6) {$e=k_e\omega_m$};
+\draw[->, act, thick line] (1.6,4.85) -- (1.6,4.35) node[midway, right, font=\footnotesize] {$V$};
+
+% ---- motor shaft with encoder disk (edge view) and optical reader
+\draw[line width=2.2pt, steel] (4.55,4.6) -- (6.05,4.6);
+\node[font=\scriptsize, note, anchor=north] at (5.55,4.5) {$\omega_m,\theta_m$};
+\fill[metal, draw=ink, thin line] (4.85,3.85) rectangle (4.98,5.35);
+\foreach \y in {3.95,4.12,...,5.25} \draw[thin line] (4.85,\y) -- (4.98,\y);
+\draw[thin line, fill=sensorc] (4.68,3.55) -- (4.68,4.05) -- (4.78,4.05) -- (4.78,3.7) -- (5.05,3.7)
+  -- (5.05,4.05) -- (5.15,4.05) -- (5.15,3.55) -- cycle;
+% face-on encoder disk (inset)
+\begin{scope}[shift={(4.95,6.75)}]
+  \draw[thin line, fill=metal] (0,0) circle (0.55);
+  \foreach \a in {0,22.5,...,337.5} \fill[white] (\a-5:0.38) -- (\a-5:0.5) arc (\a-5:\a+5:0.5) -- (\a+5:0.38) arc (\a+5:\a-5:0.38);
+  \fill[ink] (0,0) circle (0.06);
+\end{scope}
+\draw[thin line, note, dashed] (4.92,5.38) -- (4.92,6.18);
+\node[font=\footnotesize, align=right, anchor=east] at (4.3,6.72)
+  {quadrature encoder\\ on the motor shaft:\\ \cprm\ counts/motor rev\\ $=\cpro$ counts/output rev};
+\node[font=\footnotesize, note, anchor=north east, align=right] at (4.55,3.85) {\frictxt};
+
+% ---- gearbox
+\draw[thin line, fill=metal!40] (6.05,2.75) rectangle (7.35,5.15);
+\draw[thin line, fill=white] (6.7,4.6) circle (0.3);
+\draw[thin line, fill=white] (6.7,3.48) circle (0.68);
+\foreach \a in {0,30,...,330} \draw[thin line] ($(6.7,4.6)+(\a:0.24)$) -- ($(6.7,4.6)+(\a:0.3)$);
+\foreach \a in {0,15,...,345} \draw[thin line] ($(6.7,3.48)+(\a:0.6)$) -- ($(6.7,3.48)+(\a:0.68)$);
+\fill (6.7,4.6) circle (0.04); \fill (6.7,3.48) circle (0.04);
+\node[font=\footnotesize, anchor=north, align=center] at (6.7,2.7) {gearbox\\ $N=\Nval$};
+
+% ---- output shaft, arm (side view), angle and load torque
+\draw[line width=2.6pt, steel] (7.35,3.48) -- (8.95,3.48);
+\fill[plantc, draw=ink] (8.55,3.15) rectangle (8.8,5.7);
+\fill[metal, draw=ink] (8.42,5.7) rectangle (8.93,6.2);
+\node[font=\footnotesize, anchor=west] at (8.98,5.5) {arm $J_L$};
+\draw[->, accent, thick line] (7.85,3.0) arc[start angle=-90, end angle=200, x radius=0.17, y radius=0.48];
+\node[accent, anchor=south] at (7.8,3.98) {$\theta$};
+\node[accent, font=\footnotesize, anchor=north] at (8.12,2.95) {$\theta=\theta_m/N$};
+\draw[distsig] (9.25,3.95) arc[start angle=90, end angle=-200, x radius=0.17, y radius=0.48];
+\node[dist, font=\footnotesize, anchor=north, align=center] at (9.45,2.95) {load\\ torque $T_L$};
+
+% ---- controller and signal paths
+\node[ctrl, minimum width=2.0cm, minimum height=0.85cm, font=\footnotesize] (mcu) at (3.4,1.75)
+  {MCU, $T_s=1$\,ms};
+\draw[sig, accent] (4.91,3.55) |- node[pos=0.25, right, font=\footnotesize, ink] {counts}
+  ($(mcu.east)+(0,0)$);
+\draw[sig, accent] (mcu.west) -| node[pos=0.75, right, font=\footnotesize, align=left] {duty\\(1-sample delay)} (drv.south);
+\node[caption, anchor=north west] at (0,1.0)
+  {log: $t$, $V_\text{cmd}$, encoder counts at 1\,kHz; voltage step \steptxt};
+
+% ======================= (b) the control problem =======================
+\begin{scope}[shift={(10.45,0)}]
+\node[panel title] at (0,7.75) {(b) The control problem};
+\tikzset{cblock/.style={block, minimum width=0.95cm, minimum height=0.85cm, inner sep=2pt}}
+\coordinate (rin) at (0,6.2);
+\node[sum] (s1) at (0.75,6.2) {};
+\node[ctrl, cblock] (C) at (1.95,6.2) {$C(s)$};
+\node[block, cblock] (sat) at (3.45,6.2) {};
+\begin{scope}[shift={(sat.center)}, thin line]
+  \draw[note] (-0.38,0) -- (0.38,0); \draw[note] (0,-0.33) -- (0,0.33);
+  \draw[thick line] (-0.38,-0.22) -- (-0.18,-0.22) -- (0.18,0.22) -- (0.38,0.22);
+\end{scope}
+\node[font=\scriptsize, anchor=south] at (sat.north) {$\pm 12$\,V};
+\node[block, cblock] (dly) at (4.95,6.2) {$e^{-sT_s}$};
+\node[font=\scriptsize, anchor=south] at (dly.north) {PWM delay};
+\draw[sig] (rin) node[above right] {$r$} -- (s1);
+\draw[sig] (s1) -- node[above] {$e$} (C);
+\draw[sig] (C) -- node[above] {$u$} (sat);
+\draw[sig] (sat) -- (dly);
+\node[sum] (s2) at (6.45,6.2) {};
+\draw[sig] (dly) -- node[above] {$V$} (s2);
+\draw[distsig] (6.45,7.15) node[above left=0pt and -4pt, font=\footnotesize] {$d=-T_LR/(Nk_t)$} -- (s2);
+\node[font=\scriptsize] at (6.62,6.6) {$+$};
+% plant on the return row
+\node[plant, cblock, minimum width=2.4cm] (G) at (4.75,4.35) {$\dfrac{K}{s(\tau s+1)}$};
+\node[font=\scriptsize, note, anchor=north] at (G.south) {(true plant: 3rd order + friction)};
+\draw[sig] (s2) |- (G.east);
+\node[sensor, cblock] (Q) at (1.95,4.35) {};
+\begin{scope}[shift={(Q.center)}, thin line]
+  \draw[thick line] (-0.35,-0.3) -- (-0.18,-0.3) -- (-0.18,-0.1) -- (0,-0.1) -- (0,0.1) -- (0.18,0.1)
+    -- (0.18,0.3) -- (0.35,0.3);
+  \draw[note, dashed] (-0.35,-0.35) -- (0.35,0.35);
+\end{scope}
+\node[font=\scriptsize, anchor=north, align=center] at (Q.south) {encoder\\ $q=2\pi/\cpro$\,rad};
+\draw[sig] (G) -- node[above, pos=0.35] {$\theta$} (Q);
+\draw[sig] (Q) -| node[pos=0.8, left] {$\theta_q$} (s1);
+\node[font=\scriptsize] at (0.55,5.85) {$-$};
+% goal box
+\node[draw=accent, rounded corners=2pt, align=left, font=\footnotesize, anchor=north west, inner sep=4pt,
+  text width=6.55cm] at (0,2.85) {\textbf{Goal.} \specs\\[2pt]
+  {\color{note} model: identify $K,\tau$ from a voltage step}\\
+  data: \texttt{\logname}};
+\end{scope}
+\end{tikzpicture}
+\end{document}

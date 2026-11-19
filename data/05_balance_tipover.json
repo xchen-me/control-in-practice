@@ -1,0 +1,47 @@
+{
+  "source": "simulated",
+  "description": "Robot R1 (demo), same PD gains, firmware v2 with blocking telemetry: loop delay 6 samples, started from upright with no push. The robot tips over; the log ends when the 45 deg tilt cutoff trips.",
+  "true_model": "theta/tau = b0/(s^2 - p^2) (linearized); simulated with the nonlinear wheel + body equations (sin theta), RK4, zero-order-hold torque",
+  "true_p_rad_s": 13.1912,
+  "true_b0_rad_s2_per_Nm": 631.03,
+  "parameters": {
+    "m_b": 1.0,
+    "l": 0.1,
+    "I_b": 0.004333333333333333,
+    "m_w": 0.1,
+    "r": 0.034,
+    "tau_max": 0.5,
+    "h_push": 0.2,
+    "n_delay": 1
+  },
+  "units": {
+    "m_b": "kg",
+    "l": "m (axle to COM)",
+    "I_b": "kg m^2 (about COM)",
+    "m_w": "kg (both wheels)",
+    "r": "m (wheel radius)",
+    "tau_max": "N m (both motors)",
+    "h_push": "m",
+    "n_delay": "samples of sensor + computation delay"
+  },
+  "robot": "R1",
+  "sample_time_s": 0.005,
+  "imu": {
+    "gyro_noise_dps": 0.1,
+    "gyro_bias_dps": 0.4,
+    "acc_noise_deg": 0.3,
+    "alpha": 0.98
+  },
+  "sign_convention": "theta > 0 when the body leans backward; tau > 0 drives the wheels forward",
+  "test": {
+    "Kp_Nm_per_rad": 1.3788,
+    "Kd_Nms_per_rad": 0.05853,
+    "Tf_s": 0.005,
+    "loop_delay_samples": 6,
+    "loop_delay_ms": 30.0,
+    "fell": true,
+    "t_fall_s": 0.835,
+    "release_deg": 0.1
+  },
+  "seed": 503
+}

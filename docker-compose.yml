@@ -1,0 +1,15 @@
+# docker compose up        -> JupyterLab at http://localhost:8888 (your edits are saved in this folder)
+# docker compose run --rm check   -> run every demo headless and the tests
+services:
+  lab:
+    build: .
+    image: control-in-practice:2026
+    ports:
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - .:/course
+  check:
+    image: control-in-practice:2026
+    volumes:
+      - .:/course
+    command: ["sh", "-c", "python run_all.py && pytest -q tests"]

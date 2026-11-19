@@ -1,0 +1,41 @@
+{
+  "source": "simulated",
+  "description": "Motor B (12 V, 50:1 gearmotor, 48 CPR encoder) voltage step 2 V -> 7 V, encoder logged at 1 kHz",
+  "columns": {
+    "t (s)": "s",
+    "V_cmd (V)": "V",
+    "encoder (counts)": "counts"
+  },
+  "counts_per_rev": 2400,
+  "sample_time_s": 0.001,
+  "step_V": [
+    2.0,
+    7.0
+  ],
+  "step_time_s": 0.25,
+  "given": {
+    "R": 1.9,
+    "L": 0.0011,
+    "kt": 0.0235,
+    "Jm": 4.5e-06,
+    "JL": 0.006,
+    "N": 50,
+    "b": 3e-06,
+    "cpr_m": 48,
+    "V_max": 12.0,
+    "Ts": 0.001
+  },
+  "given_units": {
+    "R": "ohm",
+    "L": "H",
+    "kt": "N m/A",
+    "Jm": "kg m^2",
+    "JL": "kg m^2",
+    "N": "-",
+    "b": "N m s/rad",
+    "cpr_m": "counts per motor rev",
+    "V_max": "V",
+    "Ts": "s"
+  },
+  "nonidealities": "encoder quantization, PWM update delay, PWM amplitude ripple, friction, electrical lag L/R"
+}

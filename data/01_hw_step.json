@@ -1,0 +1,26 @@
+{
+  "source": "simulated",
+  "description": "Heater step test on board B (homework), 20 % -> 60 %.",
+  "test": {
+    "heater_pct": [
+      20,
+      60
+    ],
+    "t_step_s": 100
+  },
+  "sample_time_s": 1.0,
+  "sensor_noise_std_degC": 0.04,
+  "sensor_resolution_degC": 0.1,
+  "heater_limits_pct": [
+    0.0,
+    100.0
+  ],
+  "columns": {
+    "time_s": "s",
+    "heater_pct": "%",
+    "T_C": "degC"
+  },
+  "given": {
+    "transport_delay_s": "about 6 (board documentation)"
+  }
+}

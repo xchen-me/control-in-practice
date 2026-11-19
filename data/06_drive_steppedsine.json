@@ -1,0 +1,73 @@
+{
+  "source": "simulated",
+  "description": "Stepped-sine current excitation on stage S1 inside the parking loop (demo).",
+  "true_model": "x/i = current loop wc/(s+wc) * two-mass belt drive (non-collocated encoder), see labs/06_drive/_model.py; plus 2 samples of delay and ZOH",
+  "parameters": {
+    "J_m": 2e-05,
+    "r": 0.012,
+    "m_L": 1.2,
+    "k_belt": 17700.0,
+    "zeta_belt": 0.04,
+    "b_L": 8.0,
+    "Kt": 0.12,
+    "f_cl": 1000.0
+  },
+  "units": {
+    "J_m": "kg m^2",
+    "r": "m",
+    "m_L": "kg",
+    "k_belt": "N/m",
+    "b_L": "N s/m",
+    "Kt": "N m/A",
+    "f_cl": "Hz"
+  },
+  "true_derived": {
+    "f_r_Hz": 60.014,
+    "zeta_r": 0.04,
+    "J_total_kgm2": 0.0001928,
+    "K_rigid_mm_per_As2": 7468.88,
+    "a_rigid_rad_s": 5.9751
+  },
+  "stage": "S1",
+  "sample_time_s": 0.00025,
+  "delay_samples": 2,
+  "parking_loop": {
+    "Kp_A_per_mm": 0.02,
+    "Kd_As_per_mm": 0.003,
+    "Tf_s": 0.004
+  },
+  "encoder_resolution_mm": 0.001,
+  "encoder_noise_mm": 0.0003,
+  "current_noise_A": 0.01,
+  "current_limit_A": [
+    -3.0,
+    3.0
+  ],
+  "test": {
+    "excitation": "stepped sine",
+    "frequencies_Hz": [
+      2,
+      3,
+      5,
+      8,
+      12,
+      18,
+      26,
+      36,
+      44,
+      52,
+      56,
+      58,
+      60,
+      62,
+      65,
+      70,
+      80,
+      100,
+      130,
+      170
+    ],
+    "note": "each segment: amplitude faded in over 0.3 s, settling time 0.3 s (1.0 s within 5 Hz of the resonance), then the analysis window (measure = 1) of an integer number of periods (at least 3, at least 0.4 s) at full amplitude; amplitude grows with frequency and is reduced to 25 % within 5 Hz of the resonance"
+  },
+  "seed": 602
+}

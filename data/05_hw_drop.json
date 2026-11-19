@@ -1,0 +1,29 @@
+{
+  "source": "simulated",
+  "description": "Drop test on robot R2 (homework): motors off (coast), body released near upright, logged until it reaches the 30 deg stand.",
+  "robot": "R2",
+  "sample_time_s": 0.005,
+  "imu": {
+    "gyro_noise_dps": 0.1,
+    "gyro_bias_dps": 0.4,
+    "acc_noise_deg": 0.3,
+    "alpha": 0.98
+  },
+  "sign_convention": "theta > 0 when the body leans backward; tau > 0 drives the wheels forward",
+  "test": {
+    "motors": "off",
+    "release_deg": 0.8,
+    "stop_deg": 30
+  },
+  "columns": {
+    "time_s": "s",
+    "theta_deg": "deg (complementary filter)",
+    "gyro_dps": "deg/s",
+    "acc_tilt_deg": "deg",
+    "tau_cmd_Nm": "N m"
+  },
+  "given": {
+    "torque_limit_Nm": 1.2,
+    "pwm_bits": 8
+  }
+}

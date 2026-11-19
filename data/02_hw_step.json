@@ -1,0 +1,38 @@
+{
+  "source": "simulated",
+  "description": "Throttle step on a flat road, SUV (homework).",
+  "vehicle": "mid-size SUV (homework)",
+  "sample_time_s": 0.1,
+  "wheel_speed_resolution_mps": 0.02777777777777778,
+  "wheel_speed_noise_std_mps": 0.02,
+  "gps_speed_noise_std_mps": 0.12,
+  "throttle_limits_pct": [
+    0.0,
+    100.0
+  ],
+  "test": {
+    "throttle_pct": [
+      26,
+      32
+    ],
+    "t_step_s": 30,
+    "road": "flat"
+  },
+  "columns": {
+    "time_s": "s",
+    "throttle_pct": "%",
+    "speed_wheel_mps": "m/s",
+    "speed_gps_mps": "m/s"
+  },
+  "given": {
+    "m_kg": 2050.0,
+    "m_eff_kg": 2130.0,
+    "Cd": 0.35,
+    "A_m2": 2.8,
+    "Crr": 0.011,
+    "rho_kg_m3": 1.2,
+    "Fmax_N": 2200.0,
+    "engine_lag_s": "about 0.8",
+    "cruise_speed_mps": 25.0
+  }
+}

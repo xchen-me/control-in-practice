@@ -1,0 +1,64 @@
+{
+  "source": "simulated",
+  "description": "Stepped-sine current excitation on stage S2 inside the parking loop (homework).",
+  "stage": "S2",
+  "sample_time_s": 0.00025,
+  "delay_samples": 2,
+  "parking_loop": {
+    "Kp_A_per_mm": 0.03,
+    "Kd_As_per_mm": 0.0045,
+    "Tf_s": 0.004
+  },
+  "encoder_resolution_mm": 0.001,
+  "encoder_noise_mm": 0.0003,
+  "current_noise_A": 0.01,
+  "current_limit_A": [
+    -3.0,
+    3.0
+  ],
+  "test": {
+    "excitation": "stepped sine",
+    "frequencies_Hz": [
+      2,
+      3,
+      5,
+      8,
+      12,
+      17,
+      23,
+      29,
+      33,
+      35,
+      36.5,
+      37.5,
+      38.5,
+      40,
+      43,
+      48,
+      56,
+      70,
+      95,
+      130
+    ],
+    "note": "each segment: amplitude faded in over 0.3 s, settling time 0.3 s (1.0 s within 5 Hz of the resonance), then the analysis window (measure = 1) of an integer number of periods (at least 3, at least 0.4 s) at full amplitude; amplitude grows with frequency and is reduced to 25 % within 5 Hz of the resonance"
+  },
+  "columns": {
+    "time_s": "s",
+    "i_exc_A": "A",
+    "i_cmd_A": "A",
+    "x_mm": "mm",
+    "f_exc_Hz": "Hz",
+    "segment": "-",
+    "measure": "1 = analysis window"
+  },
+  "parameters": {
+    "Kt": 0.2,
+    "r": 0.015,
+    "m_L": 2.5
+  },
+  "units": {
+    "Kt": "N m/A",
+    "r": "m",
+    "m_L": "kg"
+  }
+}

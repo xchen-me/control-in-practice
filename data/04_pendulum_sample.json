@@ -1,0 +1,26 @@
+{
+  "source": "simulated",
+  "description": "SIMULATED phyphox gyroscope export: phone on a string, pivot to phone centre 0.75 m, released from 35 deg, swinging in the plane of the screen. Replace with your own recording.",
+  "format": "phyphox CSV export (comma, decimal point)",
+  "model": "theta'' = -(g/L_eq) sin(theta) - 2 zeta_lin wn theta' - c_quad |theta'| theta';  L_eq = d + (h^2 + w^2)/(12 d) (phone as an h x w plate swinging in its own plane)",
+  "parameters": {
+    "g": 9.81,
+    "d_m": 0.75,
+    "phone_h_m": 0.15,
+    "phone_w_m": 0.072,
+    "theta0_deg": 35.0,
+    "zeta_lin": 0.006,
+    "c_quad_per_rad": 0.08,
+    "swing_axis": "z",
+    "hold_before_release_s": 3.0,
+    "sample_rate_Hz": 100.0
+  },
+  "true_values": {
+    "L_eq_m": 0.753076,
+    "wn_small_angle_rad_s": 3.6092345004378115,
+    "T0_small_angle_s": 1.7408636946192928,
+    "wn_simple_pendulum_d_rad_s": 3.616628264005025
+  },
+  "nonidealities": "gyro bias (-5, 1.5, -2.5) mrad/s, white noise 1.5 mrad/s rms, 16-bit quantization (1.06 mrad/s), 4 deg axis misalignment, string twist mode 0.55 Hz, hand tremor before release, time-stamp jitter 0.15 ms rms",
+  "seed": 404
+}

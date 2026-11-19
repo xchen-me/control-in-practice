@@ -1,0 +1,34 @@
+{
+  "source": "simulated",
+  "description": "Heater step test on board A (demo), from ambient.",
+  "true_model": "T = amb + K e^{-delay s} / ((tau1 s + 1)(tau2 s + 1)) Q",
+  "parameters": {
+    "K": 0.62,
+    "tau1": 150.0,
+    "tau2": 15.0,
+    "delay": 4.0,
+    "amb": 21.0
+  },
+  "units": {
+    "K": "degC/%",
+    "tau1": "s",
+    "tau2": "s",
+    "delay": "s",
+    "amb": "degC"
+  },
+  "test": {
+    "heater_pct": [
+      0,
+      50
+    ],
+    "t_step_s": 60
+  },
+  "sample_time_s": 1.0,
+  "sensor_noise_std_degC": 0.04,
+  "sensor_resolution_degC": 0.1,
+  "heater_limits_pct": [
+    0.0,
+    100.0
+  ],
+  "seed": 101
+}
