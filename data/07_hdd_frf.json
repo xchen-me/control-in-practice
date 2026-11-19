@@ -1,0 +1,115 @@
+{
+  "source": "simulated",
+  "description": "Swept-sine frequency response of the VCM actuator of drive D1, VCM current to head position, exported by the servo analyzer (demo).",
+  "drive": "D1",
+  "spindle_rpm": 7200,
+  "servo_sectors": 300,
+  "sample_time_s": 2.777777777777778e-05,
+  "track_pitch_nm": 60.0,
+  "pes_resolution_pct": 0.3906,
+  "firmware_controller": {
+    "K": 0.001426,
+    "fz": 210.0,
+    "fp": 3049.0,
+    "fi": 80.0,
+    "notch": [
+      6200.0,
+      20.0,
+      0.2
+    ],
+    "form": "C(z) = lead K (s/wz + 1)/(s/wp + 1) x integral (s + wi)/s x notch (f0, depth_dB, zeta_p); corner frequencies in Hz; Tustin, prewarped (labs/07_hdd/_model.py controller())",
+    "units": "K in A/track"
+  },
+  "true_model": "y/u = Kp [1/s^2 + sum r_i/(s^2 + 2 zeta_i w_i s + w_i^2)] (tracks/A), sampled with a zero-order hold and a computation delay tau; see labs/07_hdd/_model.py",
+  "parameters": {
+    "Kt": 0.11,
+    "l_arm": 0.048,
+    "J": 1.9e-05,
+    "tau_s": 1.2e-05,
+    "modes": [
+      {
+        "name": "pivot-bearing mode",
+        "f": 3300.0,
+        "zeta": 0.05,
+        "r": 0.08
+      },
+      {
+        "name": "butterfly mode",
+        "f": 6200.0,
+        "zeta": 0.015,
+        "r": 0.6
+      },
+      {
+        "name": "suspension sway mode",
+        "f": 11500.0,
+        "zeta": 0.01,
+        "r": -0.25
+      }
+    ]
+  },
+  "units": {
+    "Kt": "N m/A",
+    "l_arm": "m",
+    "J": "kg m^2",
+    "tau_s": "s",
+    "f": "Hz"
+  },
+  "true_derived": {
+    "Kp_track_per_As2": 4631578947.4,
+    "Td_us": 25.889
+  },
+  "disturbances": {
+    "rro_track": [
+      1.2,
+      0.12,
+      0.05,
+      0.03,
+      0.02
+    ],
+    "rro_wi_track": 0.003,
+    "flutter": [
+      [
+        900.0,
+        0.03,
+        0.012
+      ],
+      [
+        1500.0,
+        0.03,
+        0.01
+      ]
+    ],
+    "windage_A": 0.00015,
+    "windage_fc": 3000.0,
+    "noise_track": 0.012,
+    "bias_A": 0.012
+  },
+  "disturbance_units": {
+    "rro_track": "track (1x, 2x, ...)",
+    "rro_wi_track": "track at 6x, ~1/sqrt(k)",
+    "flutter": "(f Hz, zeta, rms track)",
+    "windage_A": "A rms (current-equivalent)",
+    "windage_fc": "Hz",
+    "noise_track": "track rms",
+    "bias_A": "A"
+  },
+  "test": {
+    "excitation": "stepped swept sine added to the controller output (track following, firmware controller in the loop)",
+    "points": 400,
+    "f_range_Hz": [
+      100.0,
+      17000.0
+    ],
+    "amplitude": "0.6 mA up to 1 kHz, then rising as f^2, at most 8 mA",
+    "averages": 8,
+    "integration": "max(4 ms, 10 periods) per average",
+    "estimate": "excitation as reference: G = H(exc -> position)/H(exc -> current); synchronous runout removed before the correlation; coherence between excitation and position"
+  },
+  "seed": 701,
+  "columns": {
+    "f_Hz": "Hz",
+    "mag_dB": "dB re 1 track/A",
+    "phase_deg": "deg, wrapped to +/-180",
+    "coherence": "-"
+  }
+}

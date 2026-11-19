@@ -15,6 +15,7 @@ saturation, noise, quantization and delay, and a Nyquist/margin check of how rob
 | [04 pendulum](labs/04_pendulum/README.md) | **your phone** as a pendulum (phyphox app) | **your own** gyroscope recording | log decrement, second-order fit, s-plane poles, settling time, nonlinear effects | 6-8, 16 |
 | [05 balance](labs/05_balance/README.md) | two-wheeled self-balancing robot | drop test, push test, tip-over log | unstable pole, Routh range for PD, root locus, Bode of an unstable plant, Nyquist with P = 1, two-sided gain margin, delay limit | 3, 10-11, 13-17, 22-26 |
 | [06 drive](labs/06_drive/README.md) | belt-driven linear stage with a resonance | PRBS/chirp and stepped-sine logs | measured frequency response, coherence, resonance from the Bode peak, transfer-function fit, lead on the Bode plot, margins and sensitivity on measured data | 20-22, 23-26 |
+| [07 hdd](labs/07_hdd/README.md) | hard disk drive track following (voice-coil actuator with arm and suspension modes) | swept-sine frequency response, PES log | delay from the phase slope, resonances and a modal fit, lead and integral design, notch filter, margins and Ms on measured data, RRO and NRRO, sensitivity and the waterbed effect, peak filter | 12, 18, 20-22, 24, 26 |
 
 Each lab folder has a `README.md` (the system, its parameters and a tool map), worked `demo_*.py` scripts for
 class, a `homework.md` sheet (100 points, uses a different unit or test than the demos) and a `hw_starter.py`.

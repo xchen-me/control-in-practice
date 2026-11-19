@@ -1,0 +1,49 @@
+{
+  "source": "simulated",
+  "description": "Swept-sine frequency response of the VCM actuator of drive D2, VCM current to head position, exported by the servo analyzer (homework).",
+  "drive": "D2",
+  "spindle_rpm": 5400,
+  "servo_sectors": 360,
+  "sample_time_s": 3.08641975308642e-05,
+  "track_pitch_nm": 75.0,
+  "pes_resolution_pct": 0.3906,
+  "firmware_controller": {
+    "K": 0.0017708,
+    "fz": 173.0,
+    "fp": 2440.0,
+    "fi": 65.0,
+    "notch": [
+      4900.0,
+      20.0,
+      0.2
+    ],
+    "form": "C(z) = lead K (s/wz + 1)/(s/wp + 1) x integral (s + wi)/s x notch (f0, depth_dB, zeta_p); corner frequencies in Hz; Tustin, prewarped (labs/07_hdd/_model.py controller())",
+    "units": "K in A/track"
+  },
+  "test": {
+    "excitation": "stepped swept sine added to the controller output (track following, firmware controller in the loop)",
+    "points": 400,
+    "f_range_Hz": [
+      100.0,
+      15500.0
+    ],
+    "amplitude": "0.6 mA up to 1 kHz, then rising as f^2, at most 8 mA",
+    "averages": 8,
+    "integration": "max(4 ms, 10 periods) per average",
+    "estimate": "excitation as reference: G = H(exc -> position)/H(exc -> current); synchronous runout removed before the correlation; coherence between excitation and position"
+  },
+  "columns": {
+    "f_Hz": "Hz",
+    "mag_dB": "dB re 1 track/A",
+    "phase_deg": "deg, wrapped to +/-180",
+    "coherence": "-"
+  },
+  "parameters": {
+    "Kt": 0.09,
+    "l_arm": 0.05
+  },
+  "units": {
+    "Kt": "N m/A (VCM torque constant)",
+    "l_arm": "m (pivot to head)"
+  }
+}

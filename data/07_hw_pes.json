@@ -1,0 +1,42 @@
+{
+  "source": "simulated",
+  "description": "PES log of drive D2 during track following, 50 revolutions, firmware controller (homework).",
+  "drive": "D2",
+  "spindle_rpm": 5400,
+  "servo_sectors": 360,
+  "sample_time_s": 3.08641975308642e-05,
+  "track_pitch_nm": 75.0,
+  "pes_resolution_pct": 0.3906,
+  "firmware_controller": {
+    "K": 0.0017708,
+    "fz": 173.0,
+    "fp": 2440.0,
+    "fi": 65.0,
+    "notch": [
+      4900.0,
+      20.0,
+      0.2
+    ],
+    "form": "C(z) = lead K (s/wz + 1)/(s/wp + 1) x integral (s + wi)/s x notch (f0, depth_dB, zeta_p); corner frequencies in Hz; Tustin, prewarped (labs/07_hdd/_model.py controller())",
+    "units": "K in A/track"
+  },
+  "test": {
+    "revolutions": 50,
+    "note": "track following on one track with the firmware controller; PES quantized to the PES resolution; u is the VCM current command"
+  },
+  "columns": {
+    "time_s": "s",
+    "rev": "-",
+    "sector": "-",
+    "pes_pct": "% of track pitch",
+    "u_mA": "mA"
+  },
+  "parameters": {
+    "Kt": 0.09,
+    "l_arm": 0.05
+  },
+  "units": {
+    "Kt": "N m/A (VCM torque constant)",
+    "l_arm": "m (pivot to head)"
+  }
+}

@@ -168,7 +168,7 @@ page = f"""<!doctype html>
 <title>Control in Practice</title><style>{CSS}</style></head><body><main>
 <h1>Control in Practice</h1>
 <p class="byline">Xu Chen · Introduction to Control Theory · practical demos and homework</p>
-<p>Six labs take the course tools off the whiteboard. Each one starts from a logged experiment on a real kind of
+<p>Seven labs take the course tools off the whiteboard. Each one starts from a logged experiment on a real kind of
 machine and carries it through the whole toolchain: a physical model, a transfer function identified from data,
 a root-locus or Bode design, a PID, lead or lag controller that has to live with saturation, noise, quantization
 and delay, and a Nyquist or margin check of how robust the result is. Every lab has worked demos for class, a
