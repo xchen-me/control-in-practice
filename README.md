@@ -96,3 +96,7 @@ Each lab README ends with a "How to run" section that lists its notebooks and th
 - `data.py`: `load` and `save` for the logs and their provenance files.
 
 Tests: `pytest -q tests`. Instructors: `tools/check_in_docker.sh` runs everything in the image from any folder.
+
+## License
+
+Copyright (c) 2026 Xu Chen. All rights reserved; see [LICENSE](LICENSE).
