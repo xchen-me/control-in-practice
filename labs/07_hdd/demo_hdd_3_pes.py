@@ -98,8 +98,10 @@ true_rro = pm['disturbances']['rro_track']
 print('harmonic   in PES   |S0|    track runout (estimate, true)')
 for k in range(5):
     print('  %dx %4.0f Hz %5.2f %%  %.3f   %6.1f %% TP (%5.1f %%)' % (k + 1, fk[k], h[k], abs(S0(fk[k:k + 1]))[0], run[k], 100 * true_rro[k]))
-amp = fk[abs(S0(fk)) > 1]
-print('|S0| > 1 from %.0f Hz on: harmonics %dx and higher are amplified, not attenuated' % (amp[0], round(amp[0] / f_rot)))
+amp = np.flatnonzero(abs(S0(fk)) > 1) + 1               # harmonic numbers with |S0| > 1
+runs = np.split(amp, np.flatnonzero(np.diff(amp) > 1) + 1)
+print('|S0| > 1 from %.0f Hz on: harmonics %s are amplified, not attenuated'
+      % (amp[0] * f_rot, ' and '.join('%dx-%dx' % (r[0], r[-1]) for r in runs)))
 
 fn, Pn = signal.welch(st0['nrro'], 1 / Ts, nperseg=10 * ns)
 S0n = abs(S0(fn[1:]))
@@ -162,7 +164,9 @@ plt.show()
 # For a linear loop with the same disturbances, the PES with controller $C_1$ is the logged PES filtered by
 # $S_1/S_0$ (`M.predict_pes`, applied on the FFT of the whole-revolution log). This uses only the log and
 # the identified plant. As a check we also simulate the drive with the disturbance model of the demo
-# sidecar and the same random sequences (`M.simulate_pes`), which the homework drive does not provide.
+# sidecar and the same random sequences (`M.simulate_pes`), which the homework drive does not provide. The
+# simulation runs the loop once over the sequence before the logged pass, so that the slow closed-loop poles
+# that the peak filter adds near 120 Hz have settled.
 
 # %%
 peak = (f_rot, 20.0, 0.1)

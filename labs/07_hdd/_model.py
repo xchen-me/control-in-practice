@@ -10,6 +10,8 @@ The servo reads the position error signal (PES) from the servo bursts once per s
 Ts = 60/(rpm * sectors). The current computed from PES(k) reaches the coil tau seconds later (computation
 delay) and is held until the next update (zero-order hold); at low frequency this looks like a delay of
 Ts/2 + tau. PES is logged in % of the track pitch TP (100 % = one track)."""
+import warnings
+
 import numpy as np
 import control as ct
 from scipy import optimize, signal
@@ -119,15 +121,15 @@ def lead_ct(K, fz, fp):
 
 
 def notch_ct(f0, depth_dB, zeta_p):
-    """(s^2 + 2 zeta_z w0 s + w0^2)/(s^2 + 2 zeta_p w0 s + w0^2), zeta_z = zeta_p 10^(-depth/20): unit gain
-    away from f0, -depth_dB at f0; zeta_p sets the width (-3 dB band about 2 zeta_p f0 for a deep notch)."""
+    """(s^2 + 2 zeta_z w0 s + w0^2)/(s^2 + 2 zeta_p w0 s + w0^2), zeta_z = zeta_p 10^(-depth/20): -depth_dB at
+    f0, approaching unit gain far from f0; zeta_p sets the width (-3 dB band about 2 zeta_p f0 for a deep notch)."""
     w = 2 * np.pi * f0
     zz = zeta_p * 10 ** (-depth_dB / 20)
     return ct.tf([1, 2 * zz * w, w ** 2], [1, 2 * zeta_p * w, w ** 2])
 
 
 def peak_ct(f0, gain_dB, zeta_z):
-    """Peak filter (an inverted notch): +gain_dB at f0, unit gain away from it; zeta_z sets the width."""
+    """Peak filter (an inverted notch): +gain_dB at f0, approaching unit gain far from it; zeta_z sets the width."""
     w = 2 * np.pi * f0
     zp = zeta_z * 10 ** (-gain_dB / 20)
     return ct.tf([1, 2 * zeta_z * w, w ** 2], [1, 2 * zp * w, w ** 2])
@@ -157,12 +159,16 @@ def design_lead(Kp, Td, fc, PM, Ts, fi=None, notch=None, peak=None):
     """Lead for the loop crossover fc (Hz) and phase margin PM (deg) on the rigid-body design model
     Kp/s^2 e^{-s Td}. The integral, notch and peak blocks are chosen first and their phase at fc is
     included; the lead supplies the rest: phi = PM - 180 - angle(G C_rest), alpha = (1 - sin phi)/(1 + sin phi),
-    fz = fc sqrt(alpha), fp = fc/sqrt(alpha), and K makes |L| = 1 at fc."""
+    fz = fc sqrt(alpha), fp = fc/sqrt(alpha), and K makes |L| = 1 at fc. A single lead supplies less than 90 deg:
+    for phi >= 90 deg the same alpha gives 180 - phi, so the design misses the target and a warning is issued."""
     wc = 2 * np.pi * fc
     _, bl = controller(Ts, 1.0, fc / 2, fc * 2, fi, notch, peak)
     rest = np.prod([frf(b, fc)[0] for b in bl[1:]]) if len(bl) > 1 else 1.0 + 0j
     G = -Kp / wc ** 2 * np.exp(-1j * wc * Td) * rest
     phi = PM - 180 - (np.degrees(np.angle(G)) - 360 * (np.angle(G) > 0))
+    if phi >= 90:
+        warnings.warn('design_lead: a single lead stage cannot supply %.1f deg; this lead supplies %.1f deg at fc'
+                      % (phi, 180 - phi))
     s = np.sin(np.radians(phi))
     alpha = (1 - s) / (1 + s)
     fz, fp = fc * np.sqrt(alpha), fc / np.sqrt(alpha)
@@ -311,11 +317,14 @@ def disturbances(dr, n, seed):
                 rro_amps=np.array(amps))
 
 
-def simulate_pes(dr, C_d, n_rev, seed, quant=True, tau=None, n_warm=5):
+def simulate_pes(dr, C_d, n_rev, seed, quant=True, tau=None, n_warm=5, settle=True):
     """Track following of drive dr with the sampled controller C_d (A/track): n_rev revolutions after n_warm
     revolutions of warm-up (the drive was already following the track when the log starts). Per sector k:
     PES(k) = runout(k) - head(k) + noise(k) (quantized), u(k) = C(z) PES(k), applied tau later and held.
-    Returns t (s), pes (track), u (A) and the disturbance sequences of the logged part."""
+    settle: run the loop once over the whole disturbance sequence first and start from the state reached at
+    its end, so that slow closed-loop poles (integral term, peak filter) have settled; settle=False starts
+    from rest, as the demo logs were made. Returns t (s), pes (track), u (A) and the disturbance sequences of
+    the logged part."""
     n = (n_rev + n_warm) * dr['sectors']
     d = disturbances(dr, n, seed)
     P = plant_dt(dr, tau)
@@ -331,14 +340,15 @@ def simulate_pes(dr, C_d, n_rev, seed, quant=True, tau=None, n_warm=5):
     pes, u_out = np.zeros(n), np.zeros(n)
     lo, hi = dr['i_lim_A']
     q = dr['pes_res_track']
-    for k in range(n):
-        e = d['d_out'][k] - (C @ x)[0] + d['noise'][k]
-        if quant:
-            e = q * np.round(e / q)
-        u = min(max((Ck @ xk)[0] + Dk[0, 0] * e, lo), hi)
-        xk = Ak @ xk + Bk[:, 0] * e
-        x = A @ x + B[:, 0] * u + Bw * d['d_in'][k]
-        pes[k], u_out[k] = e, u
+    for _ in range(2 if settle else 1):        # the runout is periodic in a revolution, so the passes join
+        for k in range(n):
+            e = d['d_out'][k] - (C @ x)[0] + d['noise'][k]
+            if quant:
+                e = q * np.round(e / q)
+            u = min(max((Ck @ xk)[0] + Dk[0, 0] * e, lo), hi)
+            xk = Ak @ xk + Bk[:, 0] * e
+            x = A @ x + B[:, 0] * u + Bw * d['d_in'][k]
+            pes[k], u_out[k] = e, u
     k0 = n_warm * dr['sectors']
     d = {key: (v[k0:] if isinstance(v, np.ndarray) and len(v) == n else v) for key, v in d.items()}
     t = np.arange(n - k0) * sample_time(dr)

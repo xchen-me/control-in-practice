@@ -14,12 +14,16 @@ in their `.json` files; sign convention: theta > 0 = leaning backward, tau > 0 d
 | `data/05_hw_tipover` | same gains, firmware v2 with blocking telemetry; loop delay in the `.json` |
 
 The firmware PD is `ctrlprac.sim.PID(Kp, Kd=Kd, Ts=0.005, Tf=0.005)` acting on the complementary-filter
-angle; the gains and delays are in the `.json` files. Use `hw_starter.py` as the starting point. Report
-numbers with units and say how you obtained each.
+angle; the gains and delays are in the `.json` files. A delay of n samples (`loop_delay_samples`, and
+`loop_delay_ms` = n Ts) is sensor and computation delay; with the zero-order hold the total loop delay is
+Td = (n + 1/2) Ts. Use `hw_starter.py` as the starting point. Report numbers with units and say how you
+obtained each.
 
 ## 1. Unstable pole from the drop test (10 pts) — L3, L10
 (a) Explain why, with the motors off, theta(t) = A e^{pt} + B e^{-pt}. (b) Estimate p by least squares
-(restrict to |theta| < 10 deg and say why). (c) How long does R2 take to double its tilt?
+on theta = A e^{pt} + B e^{-pt} + c, where the constant c absorbs the small angle offset of the
+complementary filter (restrict to |theta| < 10 deg and say why). (c) How long does the growing mode
+e^{pt} take to double?
 
 ## 2. Input gain from the closed-loop log (15 pts) — L3, L10
 (a) Estimate p^2 and b0 in G(s) = b0/(s^2 - p^2) from `05_hw_push` with the integrated equation-error

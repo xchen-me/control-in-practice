@@ -62,7 +62,8 @@ runs = {
 }
 res = {}
 for name, ctrl in runs.items():
-    out = simulate_loop(G3, ctrl, Ts, T_end, r0, u_lim=ulim, quant=q, delay=Ts)
+    # simulate_loop applies u(t_k) from t_(k+1): this is the 1 ms PWM update delay, so no extra delay
+    out = simulate_loop(G3, ctrl, Ts, T_end, r0, u_lim=ulim, quant=q)
     sp = step_specs(out['t'], out['y'], r0)
     du = np.diff(out['u'][out['t'] > 0.02])           # skip the first 20 ms (reference step)
     res[name] = out
@@ -113,9 +114,9 @@ r_ramp = lambda t: v * t
 d_step = lambda t: d_load if t >= 0.5 else 0.0
 fig, ax = plt.subplots(1, 2, figsize=(11, 4))
 for name, C in (('lead', C_lead), ('lead + lag', C_lag), ('lead + PI', C_pi)):
-    o1 = simulate_loop(G3, LTIController(C, Ts), Ts, 3.0, r_ramp, u_lim=ulim, quant=q, delay=Ts)
-    o2 = simulate_loop(G3, LTIController(C, Ts), Ts, 3.0, 0.0, d=d_step, u_lim=ulim, quant=q, delay=Ts)
-    o3 = simulate_loop(G3, LTIController(C, Ts), Ts, 2.0, r0, u_lim=ulim, quant=q, delay=Ts)
+    o1 = simulate_loop(G3, LTIController(C, Ts), Ts, 3.0, r_ramp, u_lim=ulim, quant=q)
+    o2 = simulate_loop(G3, LTIController(C, Ts), Ts, 3.0, 0.0, d=d_step, u_lim=ulim, quant=q)
+    o3 = simulate_loop(G3, LTIController(C, Ts), Ts, 2.0, r0, u_lim=ulim, quant=q)
     e1, e2, sp = o1['r'] - o1['y'], o2['r'] - o2['y'], step_specs(o3['t'], o3['y'], r0)
     print('%-11s ramp error at 3 s = %.4f rad; load error at 3 s = %+.4f rad; 0.5 rad step: OS = %.1f %%, '
           'Ts = %.2f s' % (name, e1[-1], e2[-1], sp['OS'], sp['Ts']))
@@ -132,7 +133,7 @@ fig.tight_layout()
 plt.show()
 
 # %% [markdown]
-# **Price of the lag/PI.** The step now overshoots about 13-15 % and settles in about 0.7 s: the lag adds a
+# **Price of the lag/PI.** The step now overshoots about 13-14 % and settles in about 0.7 s: the lag adds a
 # slow closed-loop pole near $-z_g$ that does not quite cancel the lag zero, and their small residue
 # decays slowly (L9: a zero near a pole). A lower $z_g$ shrinks the overshoot but slows the recovery
 # from the load (try $z_g = \sigma/40$). This is the classic lag trade-off.
@@ -147,7 +148,7 @@ plt.show()
 # %%
 fig, ax = plt.subplots(2, 1, figsize=(9, 5.5), sharex=True)
 for name, C in (('lead', C_lead), ('lead + lag', C_lag), ('lead + PI', C_pi)):
-    o = simulate_loop(G3, LTIController(C, Ts), Ts, 1.5, 2.0, u_lim=ulim, quant=q, delay=Ts)
+    o = simulate_loop(G3, LTIController(C, Ts), Ts, 1.5, 2.0, u_lim=ulim, quant=q)
     sp = step_specs(o['t'], o['y'], 2.0)
     print('2 rad move, %-11s OS = %4.1f %%, Ts = %.3f s, time at the 12 V limit = %.0f ms'
           % (name, sp['OS'], sp['Ts'], 1e3 * Ts * np.sum(np.abs(o['u']) >= p['V_max'] - 1e-9)))

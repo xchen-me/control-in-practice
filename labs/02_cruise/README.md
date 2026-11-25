@@ -10,7 +10,8 @@ compare a lag compensator with PI, and see the throttle saturate and the integra
 ## System and parameters
 
 $m_{eff}\dot v = F - \tfrac12\rho C_d A v^2 - C_{rr} m g\cos\vartheta - m g\sin\vartheta - F_{gust}$,
-$\tau_e \dot F = F_{max} u/100 - F$ (after a short actuation delay), $u$ = throttle 0-100 %.
+$\tau_e \dot F = F_{max} u/100 - F$, $u$ = throttle 0-100 %. Each throttle command reaches the engine one 0.1 s loop
+sample after it is computed and after the 0.1 s actuation delay, so the sedan has 0.8 s of engine lag and delay in all.
 Linearized about $v_0$ on a flat road: $G(s) = \dfrac{K}{(\tau s+1)(\tau_e s+1)}$, $b = \rho C_d A v_0$,
 $K = F_{max}/(100\,b)$, $\tau = m_{eff}/b$. A grade enters at the plant input as $d = -100\,m g\sin\vartheta/F_{max}$ (% throttle).
 
@@ -42,7 +43,7 @@ conditions and the values stated in `homework.md`. They are not measurements fro
 
 Key demo results (sedan): identified $K$ = 0.653 (m/s)/%, $\tau$ = 66 s vs 0.740 and 74.5 s from the tangent at
 27 m/s (the step spans 27.2-30.5 m/s; the chord model gives 0.693 and 70 s). P gain for $\zeta$ = 0.7:
-22.6 %/(m/s), leaving 1.2 m/s deficit on 3 %. PI zero 0.049 rad/s (PM = 50 deg): recovery 42 s vs 117 s for the
+22.6 %/(m/s), leaving 1.2 m/s deficit on 3 %. PI zero 0.049 rad/s (PM = 50 deg): recovery 43 s vs 117 s for the
 cancelling zero. On the 9 % hill, no anti-windup overshoots by about 10 m/s after the crest; with clamping, 0.65 m/s.
 
 ## Files

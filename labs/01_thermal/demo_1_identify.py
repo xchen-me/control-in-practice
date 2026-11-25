@@ -24,7 +24,7 @@ import control as ct
 import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ctrlprac import data, ident
-from _model import true_plant
+from _model import TS, true_plant
 
 df, meta = data.load('01_thermal_step')
 t, u, T = df['time_s'].values, df['heater_pct'].values, df['T_C'].values
@@ -48,6 +48,8 @@ print('graphical: dT = %.2f degC -> K = %.3f; t63 = %.0f s (= theta + tau = %.0f
 
 # %% [markdown]
 # ## Compare with the true plant (known only because the data are simulated)
+# The log was made the way the firmware runs: each logged heater value is applied from the next 1 s sample on,
+# so the step logged at 60 s reaches the board after one sample plus the 4 s transport delay.
 
 # %%
 p = meta['parameters']
@@ -56,14 +58,14 @@ print('true: K = %.3f, tau1 = %.0f s, tau2 = %.0f s, transport delay = %.0f s'
       % (p['K'], p['tau1'], p['tau2'], p['delay']))
 print('K error = %.1f %%; fit tau = %.0f s vs tau1 = %.0f s (%+.1f %%)'
       % (100 * (fit['K'] / p['K'] - 1), fit['tau'], p['tau1'], 100 * (fit['tau'] / p['tau1'] - 1)))
-print('apparent delay %.1f s = %.0f s transport + %.1f s that stands in for the %.0f s sensor lag'
-      % (fit['theta'], p['delay'], fit['theta'] - p['delay'], p['tau2']))
+print('apparent delay %.1f s = %.0f s transport + %.0f s computation delay (one sample) + %.1f s that stands in'
+      ' for the %.0f s sensor lag' % (fit['theta'], p['delay'], TS, fit['theta'] - p['delay'] - TS, p['tau2']))
 
 tt = t - t_step
 y_fit = fit['y0'] + fit['K'] * du * (1 - np.exp(-np.clip(tt - fit['theta'], 0, None) / fit['tau']))
 tg = np.arange(len(t)) * 1.0
 _, y_true = ct.step_response(G_true, tg)
-y_true = p['amb'] + du * np.interp(tt - p['delay'], tg, y_true, left=0)
+y_true = p['amb'] + du * np.interp(tt - p['delay'] - TS, tg, y_true, left=0)
 
 fig, ax = plt.subplots(2, 1, figsize=(8, 6), sharex=True, gridspec_kw=dict(height_ratios=[3, 1]))
 ax[0].plot(t, T, '.', ms=2, color='0.5', label='logged T (0.1 degC steps)')
@@ -79,7 +81,7 @@ plt.show()
 
 # %% [markdown]
 # Zoom on the start: the two-lump plant starts with zero slope (an S-shape), which the FOPDT
-# fit explains with a longer dead time than the physical transport delay.
+# fit explains with a longer dead time than the 5 s of pure delay (transport delay plus one sample).
 
 # %%
 fig, ax = plt.subplots(figsize=(7, 4))
@@ -87,7 +89,8 @@ m = (t > t_step - 20) & (t < t_step + 120)
 ax.plot(t[m] - t_step, T[m], '.', color='0.5', label='logged')
 ax.plot(t[m] - t_step, y_fit[m], 'C0', label='FOPDT fit')
 ax.plot(t[m] - t_step, y_true[m], 'C3--', label='true')
-ax.axvline(p['delay'], color='k', lw=.8, ls=':'); ax.text(p['delay'] + 1, fit['y0'] + 3, 'transport delay')
+ax.axvline(p['delay'] + TS, color='k', lw=.8, ls=':')
+ax.text(p['delay'] + TS + 1, fit['y0'] + 3, 'transport delay\n+ 1 sample')
 ax.axvline(fit['theta'], color='C0', lw=.8, ls=':'); ax.text(fit['theta'] + 1, fit['y0'] + 5, 'fitted theta')
 ax.set_xlabel('time after step [s]'); ax.set_ylabel('temperature [degC]'); ax.grid(alpha=.3); ax.legend()
 fig.tight_layout()

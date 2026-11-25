@@ -53,7 +53,8 @@ w1 = speed_from_counts(t, c, cpr, window=1, causal=True)
 # %% Part 5: lead and the encoder
 q, Ts, ulim = 2 * np.pi / cpr, p['Ts'], (-p['V_max'], p['V_max'])
 # TODO: lead_by_angle(K, tau, sd, 1/tau); simulate_loop(G3, LTIController(C, Ts), Ts, 0.5, 0.3,
-#       u_lim=ulim, quant=q, delay=Ts) and the same with PID(Kp, 0, Kd, Ts, Tf=Ts/50)
+#       u_lim=ulim, quant=q) and the same with PID(Kp, 0, Kd, Ts, Tf=Ts/50); simulate_loop already
+#       applies u(t_k) from t_(k+1), the 1 ms PWM update delay, so delay stays 0
 
 # %% Part 6: load torque
 # TODO: equivalent voltage of 0.8 N m, lag and PI designs, simulate_loop(..., d=lambda t: ...)

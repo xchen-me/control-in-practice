@@ -131,7 +131,9 @@ plt.show()
 # ## Pushing the crossover toward the resonance
 # The same procedure for 15 and 20 Hz: more lead gain at the resonance, so the resonance loop grows
 # toward -1. Then the step responses of the sampled loop on the simulated stage (current limit, encoder
-# quantization, drive delay): `simulate_loop` with `LTIController(C)`.
+# quantization and noise, drive delay): `simulate_loop` with `LTIController(C)`. The simulator applies each
+# command one sample late by itself, so the two samples of drive delay are `delay=(N_DELAY - 1) * TS`. The
+# 0.01 A force ripple of the logs is left out; `_make_data.py` shows how to add it as the disturbance `d`.
 
 # %%
 res_all = {}
@@ -162,9 +164,10 @@ fig.tight_layout()
 plt.show()
 
 # %% [markdown]
-# **Reading the result.** At 10 Hz the resonance loop stays well clear of -1 (GM about 10 dB, Ms < 2).
-# At 15 Hz the rigid-body design still shows PM = 47 deg, but the resonance loop nearly touches -1
-# (GM under 2 dB, Ms above 10): the loop rings at the belt resonance. At 20 Hz the resonance loop
+# **Reading the result.** At 10 Hz the resonance loop stays well clear of -1 (GM about 10 dB, Ms < 2),
+# and the step peaks at 1.31 A, the first output of the lead, well inside the 3 A limit. At 15 Hz the
+# measured loop still has PM = 47 deg at its first crossover (16.1 Hz), but the resonance loop nearly
+# touches -1 (GM under 2 dB, Ms above 10): the loop rings at the belt resonance. At 20 Hz the resonance loop
 # encircles -1 and the stage oscillates at the resonance until the current limit holds it. Phase margin
 # at the first crossover alone would have approved all three designs; the measured gain margin at the
 # resonance and Ms do not. To go faster: a notch filter at the resonance, a stiffer belt, or a

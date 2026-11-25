@@ -68,6 +68,7 @@ plt.show()
 # %% [markdown]
 # ## 4-5. Lead + integral, then the notch and the highest crossover
 # TODO: d = M.design_lead(Kp, Td, fc, 40, Ts, fi=fc/10, notch=...); C, _ = M.controller(Ts, d['K'], d['fz'], d['fp'], fc/10, notch)
+# a single lead stage supplies less than 90 deg: check d['phi'] (M.design_lead warns when it would need more)
 # L = M.frf(C, f) * G; m = M.frf_margins(f, L); stability: abs(M.cl_poles(P_fit, C)).max() < 1
 # check: ct.stability_margins(ct.frd(L, 2 * np.pi * f))
 

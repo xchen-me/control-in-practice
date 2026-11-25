@@ -52,7 +52,8 @@ print('angle condition at s_d: %.1f deg; magnitude condition gives Kd = %.4f'
 # Open loop $K_d\,b_0 (s + z)/(s^2 - p^2)$: two real poles at $\pm p$, one zero at $-z$. The real axis
 # segment between $+p$ and $-p$ belongs to the locus; the branches break away, circle around the zero and
 # re-enter the real axis to the left of it. The firmware's derivative filter adds a pole at $-1/T_f$
-# (L15): it pulls the far branch away but barely moves the dominant poles.
+# (L15): it pulls the far branch away and, at the design $K_d$, shifts the dominant pair from
+# $-19.2 \pm j19.6$ to $-24.6 \pm j19.7$ rad/s ($\zeta$ from 0.70 to 0.78).
 
 # %%
 K = np.r_[0, np.logspace(-4, 0, 1500)]

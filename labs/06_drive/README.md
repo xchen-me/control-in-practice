@@ -29,7 +29,9 @@ w_r = sqrt(k r^2 (1/J_m + 1/(m_L r^2))); above it the slope is -80 dB/dec and th
 
 Representative values for a small servo-driven belt axis (GT-type belt, 1-2 m span), not a specific
 product. Drive: 4 kHz sampling, 2 samples (0.5 ms) of computation/bus delay plus the zero-order hold,
-+/-3 A current limit, 1 um linear encoder (0.3 um noise), 0.01 A rms force ripple/friction noise.
+Td = 2.5 Ts = 0.625 ms in total, +/-3 A current limit, 1 um linear encoder (0.3 um noise), 0.01 A rms force
+ripple/friction noise. `sim.simulate_loop` applies each command one sample late by itself, so the scripts
+pass `delay=(N_DELAY - 1) * TS`; the measured response already contains the whole delay.
 Logs are simulated with `ctrlprac.sim.simulate_loop` and marked `"source": "simulated"`; the demo sidecars
 give the true model, the homework sidecars only the test conditions and the given values above.
 
@@ -37,7 +39,7 @@ give the true model, the homework sidecars only the test conditions and the give
 
 | file | content |
 |---|---|
-| `06_drive_prbs` | S1, PRBS +/-0.4 A (1 ms bits), 8 s, inside a ~2 Hz parking PD loop |
+| `06_drive_prbs` | S1, PRBS +/-0.4 A (1 ms bits), 8 s, inside a parking PD loop (crossover 3.7 Hz) |
 | `06_drive_steppedsine` | S1, 20 stepped sines 2-170 Hz; `segment`, `f_exc_Hz`, `measure` (analysis window) |
 | `06_hw_chirp` | S2, logarithmic chirp 1-400 Hz, 0.5 A, 12 s |
 | `06_hw_steppedsine` | S2, 20 stepped sines 2-130 Hz |
@@ -62,7 +64,7 @@ Columns: `time_s, i_exc_A` (excitation), `i_cmd_A` (total current command), `x_m
 - `demo_drive_1_frf.py`: test log, ETFE + coherence, stepped sine, Bode reading (K, f_r, Q, zeta).
 - `demo_drive_2_fit.py`: `fit_tf` (unstructured and with the integrator), fit judgement, dominant poles.
 - `demo_drive_3_lead.py`: lead at 10 Hz / 50 deg, margins on model vs measured data, Nyquist, Ms;
-  10/15/20 Hz comparison with step responses.
+  10/15/20 Hz comparison with step responses (without the force ripple).
 - `homework.md`, `hw_starter.py`: stage S2.
 - `_model.py` (physics, fits, margins, lead), `_make_data.py` (regenerates the demo logs).
 

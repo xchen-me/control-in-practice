@@ -13,6 +13,9 @@
 # **Math.** Disturbance-to-speed: $\dfrac{V}{D} = \dfrac{G}{1 + CG}$. With $C = K_c(s+z)/s$ its DC gain is 0
 # (type 1). The closed-loop pole that sits near $-z$ sets the tail of the recovery, $\approx e^{-z t}$.
 # Lag: $e_{ss} = K|d|/(1 + K K_c z/p)$.
+#
+# The root loci and phase margins below use the FOPDT model fitted to the logged step, which does not change
+# if you edit `car`; only the simulations use `car` and `lin`.
 
 # %%
 import os, sys
@@ -51,7 +54,7 @@ z_star = rows[ok, 0].max()
 print('   z [rad/s]  PM [deg]  slowest pole  max drop [m/s]  recovery to 0.2 m/s [s]')
 for rw in rows[::4]:
     print('   %8.4f   %6.1f    %8.4f      %6.2f        %6.1f' % tuple(rw))
-print('design: largest z with PM >= 50 deg -> z = %.4f rad/s, Ki = Kc z = %.3f %%/(m s)' % (z_star, Kc * z_star))
+print('design: largest z with PM >= 50 deg -> z = %.4f rad/s, Ki = Kc z = %.3f %%/m' % (z_star, Kc * z_star))
 
 fig, ax = plt.subplots(figsize=(7, 4))
 ax.semilogx(rows[:, 0], rows[:, 4], 'C0o-', ms=3, label='recovery time [s]')

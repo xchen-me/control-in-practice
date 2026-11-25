@@ -27,7 +27,7 @@ car, lin = CAR_A, linearize(CAR_A)
 u0, vset, HILL = round(lin['u0'], 1), car['v0'], 0.09
 Kc, _ = gain_for_zeta(fit['model'] * ct.tf(*ct.pade(fit['theta'], 1)), 0.7)
 z = 0.05                                   # PI zero of demo 3 (rounded)
-print('PI: Kp = %.1f %%/(m/s), Ki = %.2f %%/(m s)' % (Kc, Kc * z))
+print('PI: Kp = %.1f %%/(m/s), Ki = %.2f %%/m' % (Kc, Kc * z))
 print('9 %% grade needs %.0f %% throttle at %.0f m/s (limit 100 %%)' % (u0 - grade_to_pct(car, HILL), vset))
 
 # %% [markdown]
@@ -43,7 +43,7 @@ for aw, c in ((True, 'C0'), (False, 'C3')):
     over = res['v'][m].max() - vset
     _, t_rec = recovery(res['t'], res['v'], vset, 85.0, band=0.3)
     print('anti-windup %-5s: min speed %.2f m/s, overshoot after crest %.2f m/s, back within 0.3 m/s %.0f s after crest,'
-          ' throttle at 100 %% for %.0f s' % (aw, res['v'].min(), over, t_rec, TS * np.sum(res['u'] >= 99.99)))
+          ' throttle at 100 %% for %.0f s' % (aw, res['v'].min(), over, t_rec, TS * np.sum(res['u'][:-1] >= 99.99)))
     lab = 'clamping anti-windup' if aw else 'no anti-windup'
     ax[0].plot(res['t'], res['v'], c, label=lab)
     ax[1].plot(res['t'], res['u'], c, lw=1)
@@ -57,6 +57,10 @@ plt.show()
 
 # %% [markdown]
 # ## Margins of the final loop: identified model vs the linearized "true" car
+# The identified model comes from the logged step and its fitted dead time already contains the 0.1 s loop sample
+# by which each command reaches the car late. The true-car margins use the 0.6 s engine lag and the 0.1 s delay
+# of `car` and leave out that sample, which would remove another 1.3 deg of phase at crossover and halve the gain
+# margin. Editing `car` changes only the second line; the first always uses the fitted model.
 
 # %%
 C = Kc * ct.tf([1, z], [1, 0])

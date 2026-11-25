@@ -37,8 +37,9 @@ $G(s) = K e^{-\theta s}/(\tau s + 1)$, so there is a deliberate model mismatch t
 | PM, GM, delay margin, bandwidth vs delay (`demo_4_bode_nyquist.py`) | Bode, Nyquist, margins | L20-L22, L23-L26 |
 
 Key demo results (board A): fitted $K$ = 0.620 degC/%, $\tau$ = 152 s, $\theta$ = 18.6 s (4 s transport +
-the sensor lag); PI $K_p$ = 7.18 %/degC, $K_i$ = 0.047 %/(degC s); PM = 59 deg on the model, 62 deg on the
-true plant; without anti-windup the 21 -> 50 degC step overshoots by about 17 %.
+1 s computation delay, since each logged heater value acts from the next sample, + 13.6 s for the sensor lag);
+PI $K_p$ = 7.18 %/degC, $K_i$ = 0.047 %/(degC s); PM = 59 deg on the model, 62 deg on the true plant; without
+anti-windup the 21 -> 50 degC step overshoots by about 17 %.
 
 ## Files
 

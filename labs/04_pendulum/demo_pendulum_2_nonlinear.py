@@ -31,6 +31,10 @@ t, w = rec['t'], rec['w']
 k = find_release(t, w)
 th, bias = angle_from_gyro(t, w, k)
 tc, T, A = cycles(t, th, k)
+if len(T) < 8:
+    raise ValueError('only %d clean swing cycles after the release at %.1f s; check that the phone swings freely '
+                     'and that the record covers the decay' % (len(T), t[k]))
+A_rel = abs(th[k] - np.mean(th[-len(th) // 5:]))     # release amplitude, as in demo 1
 print('%d cycles with amplitude from %.1f to %.1f deg' % (len(T), np.degrees(A[0]), np.degrees(A[-1])))
 
 # %% [markdown]
@@ -65,17 +69,21 @@ print('zeta(A) = %.4f + %.4f A  ->  zeta_lin = %.4f, c_quad = %.3f 1/rad' % (p1[
 if 'zeta_lin' in par:
     print('   simulation truth: zeta_lin = %.4f, c_quad = %.3f 1/rad' % (par['zeta_lin'], par['c_quad_per_rad']))
 
-# envelope prediction: dA/dt = -zeta(A) wn A, from the release amplitude
+# envelope prediction: dA/dt = -zeta(A) wn A, from the release amplitude to 2 % of it (the threshold of demo 1)
 wn = 2 * np.pi / T0
-te = np.linspace(0, tc[-1] - t[k] + 60, 4000)
+T_env = tc[-1] - t[k] + 60
+if zeta_l > 0:                           # long enough for the linear damping alone to reach 2 %
+    T_env = max(T_env, 1.2 * np.log(50) / (zeta_l * wn))
+te = np.linspace(0, T_env, 4000)
 Ae = np.zeros_like(te)
-Ae[0] = A[0]
+Ae[0] = A_rel
 for i in range(1, len(te)):
-    Ae[i] = Ae[i - 1] - (te[i] - te[i - 1]) * (zeta_l + p1[0] * Ae[i - 1]) * wn * Ae[i - 1]
-Ts_nl = te[np.nonzero(Ae < 0.02 * A[0])[0][0]]
+    Ae[i] = max(Ae[i - 1] - (te[i] - te[i - 1]) * (zeta_l + p1[0] * Ae[i - 1]) * wn * Ae[i - 1], 0.0)
+hit = np.nonzero(Ae < 0.02 * A_rel)[0]
+Ts_nl = te[hit[0]] if len(hit) else np.nan
 z_early = np.mean(zk[:5])
-print('2 %% settling: linear model with early zeta %.4f -> %.0f s; amplitude-dependent model -> %.0f s'
-      % (z_early, 4 / (z_early * wn), Ts_nl))
+print('2 %% settling: linear model with early zeta %.4f -> %.0f s; amplitude-dependent model -> %s'
+      % (z_early, 4 / (z_early * wn), '%.0f s' % Ts_nl if np.isfinite(Ts_nl) else 'beyond %.0f s' % te[-1]))
 
 # %%
 fig, ax = plt.subplots(1, 3, figsize=(13, 3.8))
@@ -88,10 +96,11 @@ ax[1].plot(np.degrees(Am), zk, '.', ms=4, label='5-cycle log decrement')
 ax[1].plot(np.degrees(aa), np.polyval(p1, aa), 'r--', lw=1, label=r'$\zeta_l + \frac{4}{3\pi}c_q A$')
 ax[1].set(xlabel='amplitude (deg)', ylabel='damping ratio', title='Damping grows with amplitude')
 ax[2].semilogy(tc - t[k], np.degrees(A), '.', ms=4, label='measured amplitude')
-ax[2].semilogy(te, np.degrees(A[0] * np.exp(-z_early * wn * te)), 'k:', label='linear, early zeta')
-ax[2].semilogy(te, np.degrees(Ae), 'r--', label='amplitude-dependent zeta')
-ax[2].axhline(np.degrees(0.02 * A[0]), color='0.5', lw=0.8, label='2 % of release')
-ax[2].set(ylim=(0.05, 60), xlabel='time after release (s)', ylabel='amplitude (deg)', title='Envelope')
+ax[2].semilogy(te, np.degrees(A_rel * np.exp(-z_early * wn * te)), 'k:', label='linear, early zeta')
+ax[2].semilogy(te[Ae > 0], np.degrees(Ae[Ae > 0]), 'r--', label='amplitude-dependent zeta')
+ax[2].axhline(np.degrees(0.02 * A_rel), color='0.5', lw=0.8, label='2 % of release')
+ax[2].set(ylim=(0.05, max(60, 1.5 * np.degrees(A_rel))), xlabel='time after release (s)', ylabel='amplitude (deg)',
+          title='Envelope')
 for a in ax:
     a.grid(True)
     a.legend(fontsize=8)

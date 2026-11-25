@@ -48,7 +48,8 @@ def drive(c, T, controller=None, u_seq=None, r=None, grade=0.0, v_init=None, see
 
     Either u_seq (throttle array, open loop) or controller(r, v_meas) -> throttle (closed loop on the
     wheel-speed signal). grade: constant or callable of t. Wind gusts: low-pass noise force (N std).
-    Returns dict t, r, u, v (true), v_wheel, v_gps, grade."""
+    Timing as in sim.simulate_loop: u computed from the sample at t_k reaches the engine one sample later,
+    after the delay. Returns dict t, r, u, v (true), v_wheel, v_gps, grade, all at the sample times t."""
     rng = np.random.default_rng(seed)
     n, sub = int(round(T / TS)) + 1, 100
     dt = TS / sub
@@ -61,7 +62,7 @@ def drive(c, T, controller=None, u_seq=None, r=None, grade=0.0, v_init=None, see
     w, a_w = 0.0, np.exp(-TS / 5.0)             # gust force, 5 s correlation time
     out = {k: np.zeros(n) for k in ('t', 'r', 'u', 'v', 'v_wheel', 'v_gps', 'grade')}
     for k in range(n):
-        t = k * TS
+        t, vk = k * TS, v
         vw = WHEEL_Q * np.round((v + WHEEL_N * rng.standard_normal()) / WHEEL_Q)
         vg = v + GPS_N * rng.standard_normal()
         rk = rr(t) if controller is not None else np.nan
@@ -73,7 +74,7 @@ def drive(c, T, controller=None, u_seq=None, r=None, grade=0.0, v_init=None, see
         for _ in range(sub):
             F += dt / c['tau_e'] * (c['Fmax'] * ua / 100 - F)
             v += dt / c['m_eff'] * (F - road_load(c, v, g) - w)
-        for key, val in (('t', t), ('r', rk), ('u', u), ('v', v), ('v_wheel', vw), ('v_gps', vg), ('grade', g)):
+        for key, val in (('t', t), ('r', rk), ('u', u), ('v', vk), ('v_wheel', vw), ('v_gps', vg), ('grade', g)):
             out[key][k] = val
     return out
 

@@ -12,7 +12,8 @@ import control as ct
 
 FS = 4000.0
 TS = 1.0 / FS
-N_DELAY = 2                     # samples of computation + bus delay (0.5 ms); the ZOH adds Ts/2
+N_DELAY = 2                     # samples of computation + bus delay (0.5 ms); the ZOH adds Ts/2. sim.simulate_loop
+                                # applies one sample itself, so it gets delay=(N_DELAY - 1)*TS
 I_LIM = (-3.0, 3.0)             # amplifier current limit, A
 ENC_RES_MM = 1e-3               # 1 um linear encoder
 ENC_NOISE_MM = 0.3e-3
@@ -100,8 +101,11 @@ def measured_frf(df, nperseg=8192):
 def structured_fit(w, G, delay, band=None):
     """Fit G(s) = b0 / (s (s + a)(s^2 + 2 zeta w_r s + w_r^2)): the integrator is known physics, so fit
     s G(jw) with ctrlprac.ident.fit_tf (nb = 0, na = 3) after removing the known delay. Returns the full
-    model and its parameters, K = b0 / w_r^2 being the rigid-body gain of K/(s (s + a))."""
+    model and its parameters, K = b0 / w_r^2 being the rigid-body gain of K/(s (s + a)). band: optional
+    boolean mask of the points of w, G to fit (the demos pass the masked points instead)."""
     from ctrlprac import ident
+    if band is not None:
+        w, G = w[band], G[band]
     F = ident.fit_tf(w, 1j * w * G, 0, 3, delay=delay)
     p = ct.poles(F)
     r = p[np.argmax(abs(p.imag))]

@@ -109,8 +109,8 @@ T_extra = mg['Tdm']
 T_max = Td + T_extra
 n_max = int(np.floor((T_max - Ts / 2) / Ts))
 print('delay margin T_extra = %.1f ms -> total loop delay T_max = %.1f ms' % (1e3 * T_extra, 1e3 * T_max))
-print('in whole samples of the 200 Hz loop: stable up to %d samples (%.0f ms), unstable at %d samples'
-      % (n_max, 1e3 * n_max * Ts, n_max + 1))
+print('in whole samples of the 200 Hz loop: stable up to %d samples (Td = %.1f ms), unstable at %d (Td = %.1f ms)'
+      % (n_max, 1e3 * (n_max + 0.5) * Ts, n_max + 1, 1e3 * (n_max + 1.5) * Ts))
 for n in (n_max, n_max + 1):
     print('  exact sampled loop with %d samples: max |z| = %.4f' % (n, abs(M.discrete_cl_poles(G, Kp, Kd, Tf, n)).max()))
 print('at the limit the loop oscillates at about wc = %.1f rad/s, period %.0f ms'
@@ -131,7 +131,7 @@ for n, col in ((nd, 'C0'), (n_max, 'C2'), (n_max + 1, 'C3')):
     pid = sim.PID(Kp, Kd=Kd, Ts=Ts, Tf=Tf)
     res = sim.simulate_loop(Gtrue, pid, Ts, 1.5, 0.0, d=lambda t: -0.05 if t < 0.05 else 0.0,
                             delay=(n - 1) * Ts, noise_std=np.radians(0.02))
-    ax[0].plot(res['t'], np.degrees(res['y']), col, label='%d samples (%.0f ms)' % (n, n * Ts * 1e3))
+    ax[0].plot(res['t'], np.degrees(res['y']), col, label='%d samples (Td = %.1f ms)' % (n, (n + 0.5) * Ts * 1e3))
     o = M.simulate(M.ROBOT_A, sim.PID(Kp, Kd=Kd, Ts=Ts, Tf=Tf), 3.0, theta0_deg=2.0, n_delay=n, seed=7)
     ax[1].plot(o['t'], np.degrees(o['theta']), col, label='%d samples%s' % (n, ', FELL' if
                                                                          abs(o['theta'][-1]) > 0.7 else ''))
@@ -158,8 +158,8 @@ zc_ = M.discrete_cl_poles(G, Kp, Kd, Tf, nbad)
 cl_bad = np.log(zc_[np.argmax(abs(zc_))]) / Ts                   # z = e^{sTs}
 Lbad = M.loop_frf(G, Kp, Kd, Tf, nbad, w)
 mbad = M.loop_margins(Lbad, w)
-print('tip-over log: delay %d samples = %.0f ms > T_max = %.1f ms; fell at t = %.2f s'
-      % (tm['test']['loop_delay_samples'], tm['test']['loop_delay_ms'], 1e3 * T_max, tt[-1]))
+print('tip-over log: delay %d samples, Td = %.1f ms > T_max = %.1f ms; fell at t = %.2f s'
+      % (nbad, 1e3 * (nbad + 0.5) * Ts, 1e3 * T_max, tt[-1]))
 print('  model with this delay: PM = %.0f deg, CCW encirclements = %.0f (need 1) -> unstable pole '
       's = %.1f +/- j%.1f rad/s' % (mbad['PM'], M.winding_ccw(Lbad), cl_bad.real, abs(cl_bad.imag)))
 print('  growing oscillation in the log: about %.0f rad/s (zero crossings, before saturation dominates)'

@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ctrlprac import data, ident
-from _model import linearize
+from _model import TS, linearize
 
 df, meta = data.load('02_cruise_step')
 car = meta['parameters']
@@ -61,8 +61,9 @@ v_mid = 0.5 * (fw['y0'] + v1)
 lin_mid = linearize(car, v_mid)      # for a quadratic, the chord slope = tangent slope at the mid-speed
 print('chord over the step (tangent at %.2f m/s): b = %.1f N s/m -> K = %.3f, tau = %.1f s'
       % (v_mid, lin_mid['b'], lin_mid['K'], lin_mid['tau']))
-print('identified vs tangent at v0: K %+.1f %%, tau %+.1f %%; engine lag + delay %.1f s vs fitted theta %.2f s'
-      % (100 * (fw['K'] / lin['K'] - 1), 100 * (fw['tau'] / lin['tau'] - 1), car['tau_e'] + car['delay'], fw['theta']))
+print('identified vs tangent at v0: K %+.1f %%, tau %+.1f %%; engine lag + delay + one loop sample %.1f s vs fitted'
+      ' theta %.2f s' % (100 * (fw['K'] / lin['K'] - 1), 100 * (fw['tau'] / lin['tau'] - 1),
+                          car['tau_e'] + car['delay'] + TS, fw['theta']))
 
 tt = t - t_step
 model = lambda f, K, tau, th: f['y0'] + K * du * (1 - np.exp(-np.clip(tt - th, 0, None) / tau))
@@ -81,5 +82,7 @@ plt.show()
 
 # %% [markdown]
 # The chord model explains most of the gap; the remaining few percent come from wind gusts during the test
-# (a slow random force the car integrates). The GPS and wheel-speed fits agree on $K$ and $\tau$; the dead time (a fraction of a second of engine lag)
-# is poorly determined by a test whose time constant is over a minute, so treat $\theta$ as an upper bound.
+# (a slow random force the car integrates). The GPS and wheel-speed fits agree on $K$ and $\tau$. The car applies
+# each throttle command one 0.1 s loop sample after it is logged and then waits its 0.1 s delay, so it has 0.8 s of
+# engine lag and delay in all. The fitted dead time of 2.4 s is much longer and poorly determined by a test whose
+# time constant is over a minute, so a design based on it is conservative.

@@ -24,7 +24,7 @@ import _model as M
 # %% [markdown]
 # ## The test log
 # A double integrator drifts away under open-loop excitation, so the drive holds the carriage with a
-# slow "parking" PD loop (crossover near 2 Hz) and adds the excitation current $i_{exc}$ to the
+# slow "parking" PD loop (crossover near 3.7 Hz) and adds the excitation current $i_{exc}$ to the
 # controller output. The log has the excitation, the total current command and the encoder position,
 # sampled at 4 kHz.
 
@@ -64,7 +64,12 @@ G_etfe = Hdx / Hdu
 _, G_direct, _ = ident.etfe(t, u, x, nperseg=nps)
 f = w / 2 / np.pi
 good = (coh > 0.9) & (f >= 1.5) & (f <= 300)
-print('coherence > 0.9 from %.1f to %.1f Hz' % (f[good].min(), f[good].max()))
+f_lo, f_hi = f[good].min(), f[good].max()
+gaps = np.flatnonzero(~good & (f > f_lo) & (f < f_hi))         # rejected bins between accepted ones
+f_all = f[gaps[0] - 1] if len(gaps) else f_hi
+above = (f > f_all) & (f <= f_hi)
+print('coherence > 0.9 at every bin from %.1f to %.1f Hz' % (f_lo, f_all)
+      + (', and at %d of the %d bins up to %.1f Hz' % ((good & above).sum(), above.sum(), f_hi) if above.any() else ''))
 
 # %% [markdown]
 # ## Stepped sine (L20)

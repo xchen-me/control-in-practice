@@ -68,7 +68,7 @@ fig.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ## Implementation on the board: 23 -> 50 degC, heater clipped to 0-100 %, with and without anti-windup
+# ## Implementation on the board: 21 -> 50 degC, heater clipped to 0-100 %, with and without anti-windup
 # The simulation uses the **true** plant (two lumps + 4 s delay), not the model the controller was designed on.
 
 # %%
@@ -80,7 +80,7 @@ for aw in (True, False):
                                  quant=QUANT, delay=p['delay'], y0=amb, seed=31)
     OS, ts = step_metrics(runs[aw]['t'], runs[aw]['y'], r, amb)
     print('anti-windup %-5s: overshoot = %5.1f %%, 2%% settling = %4.0f s, heater at 100 %% for %3.0f s'
-          % (aw, OS, ts, TS * np.sum(runs[aw]['u'] >= 99.99)))
+          % (aw, OS, ts, TS * np.sum(runs[aw]['u'][:-1] >= 99.99)))
 # linear loop without saturation, for reference
 Lin = ct.feedback(ct.tf([Kp, Ki], [1, 0]) * true_plant(p) * ct.tf(*ct.pade(p['delay'], 3)), 1)
 _, y_lin = ct.step_response(Lin, runs[True]['t'])
@@ -128,16 +128,20 @@ plt.show()
 
 # %% [markdown]
 # ## PID: second zero at the Pade pole (IMC-style), derivative filter $T_f = \theta/10$
-# $C(s) = K_c \frac{(s + 1/\tau)(s + 2/\theta)}{s (T_f s + 1)}$, i.e. $K_p = K_c(z_1 + z_2)$,
-# $K_i = K_c z_1 z_2$, $K_d = K_c$. Faster on paper, but the derivative turns the 0.1 degC sensor steps
-# into heater chatter.
+# $C(s) = K_c \frac{(s + z_1)(s + z_2)}{s (T_f s + 1)}$ with $z_1 = 1/\tau$, $z_2 = 2/\theta$. `sim.PID` realizes
+# $K_p + K_i/s + K_d s/(T_f s + 1)$, whose numerator over $s(T_f s + 1)$ is
+# $(K_p T_f + K_d)s^2 + (K_p + K_i T_f)s + K_i$, so matching coefficients gives $K_i = K_c z_1 z_2$,
+# $K_p = K_c(z_1 + z_2) - K_i T_f$ and $K_d = K_c - K_p T_f$. Faster on paper, but the derivative turns the
+# 0.1 degC sensor steps into heater chatter.
 
 # %%
 Tf = fit['theta'] / 10
 z2 = 2 / fit['theta']
 L2 = ct.tf(np.polymul([1, z], [1, z2]), np.polymul([1, 0], [Tf, 1])) * Gp
 Kc2, cl2 = gain_for_zeta(L2, ZETA)
-Kp2, Ki2, Kd2 = Kc2 * (z + z2), Kc2 * z * z2, Kc2
+Ki2 = Kc2 * z * z2
+Kp2 = Kc2 * (z + z2) - Ki2 * Tf
+Kd2 = Kc2 - Kp2 * Tf
 print('PID: Kp = %.3f, Ki = %.5f, Kd = %.2f %%s/degC, Tf = %.2f s; slowest complex pair %s'
       % (Kp2, Ki2, Kd2, Tf, np.round(cl2[np.argmax(np.where(np.abs(cl2.imag) > 1e-9, cl2.real, -9))], 4)))
 fig, ax = plt.subplots(2, 1, figsize=(8, 6), sharex=True)

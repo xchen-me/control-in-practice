@@ -112,7 +112,7 @@ PES_TEST = dict(revolutions=50)
 
 
 def make_pes(dr, seed):
-    res = M.simulate_pes(dr, firmware(dr), PES_TEST['revolutions'], seed)
+    res = M.simulate_pes(dr, firmware(dr), PES_TEST['revolutions'], seed, settle=False)   # as the log was written
     test = dict(revolutions=PES_TEST['revolutions'], note='track following on one track with the firmware '
                 'controller; PES quantized to the PES resolution; u is the VCM current command')
     return pes_frame(dr, res), test, res

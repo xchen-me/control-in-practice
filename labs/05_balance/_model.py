@@ -15,7 +15,9 @@ import control as ct
 G0 = 9.81
 TS = 0.005                    # 200 Hz control loop
 
-# demo robot "R1": 1.0 kg body, centre of mass 10 cm above the axle, 68 mm wheels
+# demo robot "R1": 1.0 kg body, centre of mass 10 cm above the axle, 68 mm wheels. I_b stays fixed when
+# m_b or l is changed (a change of m_b is mass at the centre of mass). n_delay: samples of sensor +
+# computation delay; with the zero-order hold the total loop delay is Td = (n_delay + 1/2) TS.
 ROBOT_A = dict(name='R1', m_b=1.0, l=0.10, I_b=1.0 * (0.22 ** 2 + 0.06 ** 2) / 12, m_w=0.10, r=0.034,
                tau_max=0.50, h_push=0.20, n_delay=1)
 
@@ -64,10 +66,12 @@ def _deriv(rb, s, tau, F):
 def simulate(rb, controller, T, push=None, theta0_deg=0.0, n_delay=None, motors_on=True,
              stop_deg=None, seed=0, fall_deg=45.0):
     """Nonlinear robot under a discrete controller(r, theta_hat) -> tau, with IMU noise, complementary
-    filter, torque limit and PWM quantization, n_delay samples of sensor+computation delay.
+    filter, torque limit and PWM quantization, n_delay samples of sensor+computation delay (with the
+    zero-order hold, Td = (n_delay + 1/2) TS).
 
-    push(t) -> horizontal force (N) at h_push. The run stops when |theta| > fall_deg (body on the
-    ground stop) or, if given, when |theta| > stop_deg. Returns dict of arrays."""
+    push(t) -> horizontal force (N) at h_push. The run stops when |theta| > fall_deg (the firmware's
+    tilt cutoff, a fall; the logs end there) or, if given, when |theta| > stop_deg (the stand of the
+    drop test). Returns dict of arrays."""
     rng = np.random.default_rng(seed)
     n_delay = rb['n_delay'] if n_delay is None else n_delay
     n = int(round(T / TS)) + 1
@@ -138,9 +142,12 @@ def loop_margins(L_jw, w):
 
 
 def winding_ccw(L_jw):
-    """Net counter-clockwise encirclements of -1 by L(jw), w from -inf to +inf (conjugate mirror)."""
-    z = np.concatenate([np.conj(L_jw[::-1]), L_jw]) + 1
-    return float(np.round((np.unwrap(np.angle(z))[-1] - np.unwrap(np.angle(z))[0]) / (2 * np.pi), 2))
+    """Net counter-clockwise encirclements of -1 by L(jw), w from -inf to +inf (conjugate mirror).
+    The grid ends at a finite w (pi/Ts in the demos), where |L| is small but not zero, so the curve is
+    closed from L(j w_max) back to its mirror image before the angle is counted; the result is an integer."""
+    z = np.concatenate([np.conj(L_jw[::-1]), L_jw, np.conj(L_jw[-1:])]) + 1
+    ang = np.unwrap(np.angle(z))
+    return float(np.round((ang[-1] - ang[0]) / (2 * np.pi))) + 0.0      # no "-0"
 
 
 def fit_drop(t, th_deg, max_deg=10.0):
@@ -197,7 +204,8 @@ def pd_frf(Kp, Kd, Tf, Ts, w):
 
 
 def loop_frf(G, Kp, Kd, Tf, n_delay, w, Ts=TS):
-    """L(jw) of the sampled loop: firmware PD, n_delay samples of delay, zero-order hold (Ts/2 delay)."""
+    """L(jw) of the sampled loop: firmware PD, n_delay samples of delay, zero-order hold (Ts/2 delay),
+    so the total loop delay is Td = (n_delay + 1/2) Ts."""
     return pd_frf(Kp, Kd, Tf, Ts, w) * G(1j * w) * np.exp(-1j * w * (n_delay + 0.5) * Ts)
 
 

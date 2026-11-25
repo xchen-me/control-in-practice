@@ -53,15 +53,23 @@ def region(ax, ymax=60):
 # %% [markdown]
 # ## P control: $C(s)=K_p$ (L13)
 # Closed loop: $\tau s^2 + s + KK_p = 0$. The two branches meet at $-1/(2\tau)$ and go straight up:
-# $\sigma = 1/(2\tau)$ for every $K_p$, so $T_s \approx 8\tau$ cannot be shortened by gain.
+# $\sigma = 1/(2\tau)$ for every $K_p$ past the meeting point (less before it), so no gain reaches the
+# region. The estimate $T_s \approx 4/\sigma = 8\tau$ is not a bound: the exact 2 % settling time
+# changes with $K_p$, and the scan below shows that even its shortest value misses 0.15 s.
 
 # %%
 gains = np.linspace(0, 40, 400)
 loc = ct.root_locus_map(G, gains).loci
-print('P control: sigma = 1/(2 tau) = %.1f 1/s -> Ts >= %.3f s (spec %.2f s): not reachable'
-      % (1 / (2 * tau), 8 * tau, Ts_max))
+print('P control: sigma <= 1/(2 tau) = %.1f 1/s for every Kp -> estimate Ts ~ 4/sigma = 8 tau = %.3f s '
+      '(spec %.2f s): not reachable' % (1 / (2 * tau), 8 * tau, Ts_max))
 Kp_z = 1 / (4 * K * tau * zeta_min ** 2)
 print('largest Kp with zeta >= %.2f: Kp = %.2f V/rad' % (zeta_min, Kp_z))
+tp, Ts_P = np.arange(0, 0.6, 1e-4), []
+for Kp in np.linspace(1 / (4 * K * tau), Kp_z, 100):     # below 1/(4 K tau) one real pole is slower still
+    _, y = ct.step_response(ct.feedback(Kp * G), tp)
+    Ts_P.append((step_specs(tp, y, 1.0)['Ts'], Kp))
+print('exact 2 %% settling for Kp up to %.2f V/rad: shortest %.3f s at Kp = %.2f V/rad; %.3f s at Kp = %.2f V/rad'
+      % (Kp_z, min(Ts_P)[0], min(Ts_P)[1], Ts_P[-1][0], Kp_z))
 
 # %% [markdown]
 # ## PD by the angle condition (L17)
@@ -85,6 +93,7 @@ for zeta in (0.70, 0.80):
           % (zeta, sd.real, sd.imag, z, Kd, Kd * z))
     print('   with the zero: OS = %.1f %%, Ts = %.3f s;  poles only: OS = %.1f %%, Ts = %.3f s;  proportional part Kp r = %.1f V'
           % (sp['OS'], sp['Ts'], sp_nz['OS'], sp_nz['Ts'], Kd * z * r0))
+    print('   derivative part on the reference step: impulse of area Kd r = %.3f V s' % (Kd * r0))
 
 # %%
 fig, ax = plt.subplots(1, 2, figsize=(11, 4.4))
@@ -117,6 +126,9 @@ plt.show()
 # %% [markdown]
 # **Takeaways.** With zeta = 0.70 the poles alone would give 4.6 % overshoot, but the closed-loop zero at
 # $-z$ (from $C(s)=K_d(s+z)$ acting on the error) pushes it above 5 %. Moving the target to zeta = 0.80
-# moves the zero closer to the poles in angle but lowers the pole overshoot enough: the spec is met with
-# about 3 % overshoot, and the initial voltage $K_p r$ stays under 12 V. Next (demo 3): a pure PD cannot
-# be built, and differentiating encoder counts is noisy, so we replace it by a lead.
+# moves the zero closer to the poles in angle but lowers the pole overshoot enough: the overshoot and
+# settling specs are met with about 3 % overshoot, and the proportional part $K_p r$ stays under 12 V.
+# The voltage check covers only that part: on a reference step the derivative of the error is an impulse,
+# so the ideal PD would also apply an impulse of area $K_d r$, which no PWM stage can deliver. Next
+# (demo 3): a pure PD cannot be built, and differentiating encoder counts is noisy, so we replace it by a
+# lead, or differentiate the filtered measurement instead of the error.

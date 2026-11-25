@@ -39,9 +39,10 @@ than 0.005 rad in steady state.
    meet the specs and the 12 V limit (proportional part Kp r)? Explain the role of the closed-loop zero.
 5. **Lead and the encoder (15 pts, L18).** Design a lead C(s) = Kc (s + 1/tau)/(s + p) for zeta = 0.85,
    sigma = 28. Simulate it and the PD (implemented with `PID(..., Tf=Ts/50)`) with `simulate_loop` on the
-   **third-order** plant with `u_lim=(-12, 12)`, `delay=1e-3` and the encoder quantization. Report
-   overshoot, settling time, peak voltage and the rms sample-to-sample voltage change. Explain the size of
-   the PD voltage jumps from Kd, the count size, and Ts.
+   **third-order** plant with `u_lim=(-12, 12)` and the encoder quantization. `simulate_loop` applies each
+   voltage one sample after the encoder reading it was computed from, which is the 1 ms PWM update delay
+   of the hardware, so leave `delay` at 0. Report overshoot, settling time, peak voltage and the rms
+   sample-to-sample voltage change. Explain the size of the PD voltage jumps from Kd, the count size, and Ts.
 6. **Load torque (15 pts, L12, L18).** Convert 0.8 N m at the output into an equivalent input voltage
    and compute the steady-state error with the lead alone. Design a lag (beta from the spec, zero at
    sigma/10) and a PI (C_lead (s + z_g)/s). Simulate the load step (from rest, load applied at 0.5 s) and

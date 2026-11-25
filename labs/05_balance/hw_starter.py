@@ -41,7 +41,7 @@ plt.show()
 
 # %% [markdown]
 # ## 1. Drop test
-# TODO: least-squares fit theta = A e^{pt} + B e^{-pt} (+ offset) on |theta| < 10 deg, scanning p.
+# TODO: least-squares fit theta = A e^{pt} + B e^{-pt} + c (c: angle offset) on |theta| < 10 deg, scanning p.
 p_drop = None
 
 # %% [markdown]

@@ -1,12 +1,12 @@
 # Lab 07: hard disk drive track following
 
-A voice-coil motor swings the actuator arm of a hard disk drive so that the head follows a data track
-60 nm wide. At low frequency the arm is a rigid inertia, but the pivot bearing, the arm and the suspension
-add lightly damped resonances at a few kHz, and the servo samples the head position only once per servo
-sector. We identify the actuator from a measured frequency response, design a lead and integral
-controller with a notch filter for the butterfly mode, check it on the measured response, and use the
-sensitivity function to explain and predict the position error signal (PES) with its repeatable and
-non-repeatable runout.
+A voice-coil motor swings the actuator arm of a hard disk drive so that the head follows a data track;
+adjacent tracks are 60 nm apart (the track pitch). At low frequency the arm is a rigid inertia, but the
+pivot bearing, the arm and the suspension add lightly damped resonances at a few kHz, and the servo samples
+the head position only once per servo sector. We identify the actuator from a measured frequency response,
+design a lead and integral controller with a notch filter for the butterfly mode, check it on the measured
+response, and use the sensitivity function to explain and predict the position error signal (PES) with its
+repeatable and non-repeatable runout.
 
 ![scene](figures/scene.png)
 
@@ -38,7 +38,7 @@ next sector (zero-order hold), so at low frequency the loop sees a delay Td = Ts
 Representative values for a 3.5-inch, 7200 rpm class drive and a slower 5400 rpm drive, not a specific
 product. Disturbances of D1 (in the demo sidecars): track runout at the spindle harmonics (1.2 tracks at
 1x after the drive's runout feedforward, falling to a few percent of a track at 5x, plus written-in runout
-of 0.3 % TP per harmonic up to 60x), disk flutter at 0.9 and 1.5 kHz, windage torque on the arm
+of 0.3 % TP at 6x that falls as 1/sqrt(k) up to 60x), disk flutter at 0.9 and 1.5 kHz, windage torque on the arm
 (0.15 mA rms equivalent), 1.2 % TP rms PES noise with 1/256 track resolution, and a 12 mA flex-cable bias.
 The logs are simulated with `_model.py` and marked `"source": "simulated"`; the demo sidecars give the true
 model, the homework sidecars only the test conditions and the given values above.

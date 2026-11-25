@@ -57,4 +57,5 @@ plt.show()
 
 # %% [markdown]
 # ## 6-7. Lead design, margins and Ms on the MEASURED response, step simulation
-# TODO: L = C(1j w) G_measured; sim.simulate_loop(ct.ss(G_fit), sim.LTIController(C, Ts, u_lim=M.I_LIM), ...)
+# TODO: L = C(1j w) G_measured; sim.simulate_loop(ct.ss(G_fit), sim.LTIController(C, Ts, u_lim=M.I_LIM), ...,
+# delay=(mch['delay_samples'] - 1) * Ts) (simulate_loop applies one sample of delay by itself)

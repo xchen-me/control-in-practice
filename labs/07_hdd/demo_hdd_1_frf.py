@@ -4,11 +4,12 @@
 #
 # ![scene](figures/scene.png)
 #
-# **Overview.** A hard disk drive keeps its read/write head on a data track that is only 60 nm wide. The
-# head sits at the end of an arm that a voice-coil motor (VCM) rotates about a pivot. At low frequency the
-# arm is a rigid inertia, a double integrator from coil current to head position; at a few kHz the arm,
-# the pivot bearing and the suspension add lightly damped resonances. The servo samples the head position
-# once per servo sector (36 kHz here), so the zero-order hold and the computation delay also count.
+# **Overview.** A hard disk drive keeps its read/write head on a data track, and the tracks are only 60 nm
+# apart (the track pitch). The head sits at the end of an arm that a voice-coil motor (VCM) rotates about a
+# pivot. At low frequency the arm is a rigid inertia, a double integrator from coil current to head position;
+# at a few kHz the arm, the pivot bearing and the suspension add lightly damped resonances. The servo
+# samples the head position once per servo sector (36 kHz here), so the zero-order hold and the computation
+# delay also count.
 # The drive's servo analyzer measured the frequency response from VCM current to head position with a
 # swept sine (L20). From that measurement we read the delay from the phase slope, the rigid-body gain
 # from the -40 dB/dec line, and every resonance from its peak (L21), and then refine all of them with a
@@ -87,9 +88,10 @@ print('-> computation delay tau = Td - Ts/2 = %.2f us; phase lag of the delay at
 
 # %% [markdown]
 # ## Rigid-body gain from the -40 dB/dec line (L21)
-# On the same band $|G| \approx K_p/\omega^2$, so $|G|\,\omega^2$ is flat and equal to $K_p$. With the VCM
-# torque constant $K_t$, the pivot-to-head length $l$ and the track pitch TP, $K_p = K_t l/(J\,\mathrm{TP})$
-# gives the actuator inertia $J$.
+# Below the modes $|G| \approx K_p/\omega^2$, so $|G|\,\omega^2$ is flat and equal to $K_p$. The modes pull it down as
+# the frequency rises (by 0.8 % at 600 Hz and about 6 % at 1.5 kHz), so $K_p$ is the median of $|G|\,\omega^2$ on
+# 150-600 Hz. With the VCM torque constant $K_t$, the pivot-to-head length $l$ and the track pitch TP,
+# $K_p = K_t l/(J\,\mathrm{TP})$ gives the actuator inertia $J$.
 
 # %%
 lo2 = lo & (f <= 600)

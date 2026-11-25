@@ -55,7 +55,8 @@ butterfly mode of your fitted model by -5 % and +5 % and report the margins of y
 ## 6. The PES with the firmware controller (15 pts) — L20, L26
 (a) Split the PES into RRO and NRRO by averaging over revolutions; give 3 sigma of each in % TP and in nm.
 (b) Give the amplitudes of the first five spindle harmonics in the PES, and estimate the track runout at
-each by dividing by |S0| of the firmware loop. Above which harmonic does the loop amplify the runout?
+each by dividing by |S0| of the firmware loop. From which harmonic on does the loop amplify the runout, and is
+every higher harmonic amplified?
 (c) Plot the NRRO spectrum and NRRO PSD/|S0|^2, and name the frequencies of the disk flutter.
 
 ## 7. Predicted PES with your controller and a peak filter (10 pts) — L26

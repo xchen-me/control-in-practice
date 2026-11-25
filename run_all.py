@@ -14,7 +14,7 @@ OUT = os.path.join(HERE, 'out')
 os.makedirs(OUT, exist_ok=True)
 key = sys.argv[1] if len(sys.argv) > 1 else ''
 scripts = [p for p in sorted(glob.glob(os.path.join(HERE, 'labs', '*', '*.py')))
-           if key in p and not os.path.basename(p).startswith('_')]
+           if key in os.path.relpath(p, HERE) and not os.path.basename(p).startswith('_')]
 failed = []
 for path in scripts:
     name = os.path.basename(os.path.dirname(path)) + '_' + os.path.basename(path)[:-3]

@@ -18,7 +18,8 @@ ranges and justifying the choice, estimating uncertainties and propagating them,
 comparisons between methods, and the explanations.
 
 **Deliverables.** (i) your gyroscope CSV (only `Gyroscope.csv`, not the `meta/` folder), (ii) a photo of
-the setup with the tape measure visible (no people), (iii) your measured d, h, w with an uncertainty,
+the setup with the tape measure visible (no people), (iii) your measured pendulum length d (from the pivot
+to the phone centre), h and w with an uncertainty,
 (iv) one PDF with the plots (labelled axes, units), a table of all numbers, and the answers, (v) your code
 (the completed `hw_starter.py`, which must run as submitted and reproduce every number in the table).
 

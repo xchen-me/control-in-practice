@@ -83,10 +83,11 @@ print('closed loop on the fitted model: max |z| = %.4f -> %s; unstable pole near
 #
 # ## A notch at the butterfly mode (L21)
 # $N(s) = (s^2 + 2\zeta_z\omega_0 s + \omega_0^2)/(s^2 + 2\zeta_p\omega_0 s + \omega_0^2)$ with $\zeta_z/\zeta_p$ setting the
-# depth: 20 dB at $f_0$ = the identified butterfly frequency, width $\zeta_p$ = 0.2 (the attenuation exceeds
-# 10 dB over about $\pm$ 10 % of $f_0$, room for the spread of this mode between drives and with temperature). The notch lowers the loop gain at
-# the mode, so the loop is gain-stabilized there; it also costs a few degrees at the crossover, so the lead
-# is designed again with the notch included.
+# depth: 20 dB at $f_0$ = the identified butterfly frequency, width $\zeta_p$ = 0.2. In its Tustin form the notch
+# attenuates by at least 10 dB from 5.1 % below to 5.2 % above $f_0$, room for part of the spread of this mode
+# between drives and with temperature. The notch lowers the loop gain at the mode, so the loop is
+# gain-stabilized there; it also costs a few degrees at the crossover, so the lead is designed again with the
+# notch included.
 
 # %%
 notch = (round(f_bfly), 20.0, 0.2)

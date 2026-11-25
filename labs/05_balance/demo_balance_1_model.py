@@ -40,10 +40,11 @@ print('model from parameters: p = %.2f rad/s, b0 = %.0f rad/s^2/(N m)' % (p_true
 # %% [markdown]
 # ## Identify p from the drop test
 # With the motors off, $\ddot\theta = p^2\theta$, so $\theta(t) = A e^{pt} + B e^{-pt}$ (released from
-# rest, $\theta = \theta_0\cosh pt$). For a trial $p$ this is LINEAR in $(A, B)$: solve by least squares,
-# keep the $p$ with the smallest residual (a one-dimensional search). Use $|\theta| < 10$ deg, where
-# $\sin\theta \approx \theta$. (A straight line through $\ln|\theta|$ would ignore the $e^{-pt}$ term and
-# underestimate $p$.)
+# rest, $\theta = \theta_0\cosh pt$). The fit adds a constant $c$ for the small angle offset that the gyro
+# bias leaves in the complementary filter: $\theta = A e^{pt} + B e^{-pt} + c$. For a trial $p$ this is
+# LINEAR in $(A, B, c)$: solve by least squares, keep the $p$ with the smallest residual (a one-dimensional
+# search). Use $|\theta| < 10$ deg, where $\sin\theta \approx \theta$. (A straight line through $\ln|\theta|$
+# would ignore the $e^{-pt}$ term and underestimate $p$.)
 
 # %%
 drop, meta = data.load('05_balance_drop')
@@ -52,13 +53,13 @@ p_drop, coef, m = M.fit_drop(t, th)
 slope = np.polyfit(t[m & (np.abs(th) > 3)], np.log(np.abs(th[m & (np.abs(th) > 3)])), 1)[0]
 print('drop test: p = %.2f rad/s (true %.2f, error %+.1f %%); straight line on ln|theta|: %.2f rad/s'
       % (p_drop, p_true, 100 * (p_drop / p_true - 1), slope))
-print('time to double the tilt = ln2/p = %.0f ms' % (1e3 * np.log(2) / p_drop))
+print('doubling time of the growing mode e^{pt}: ln2/p = %.0f ms' % (1e3 * np.log(2) / p_drop))
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 3.6))
 ax[0].plot(t, th, '.', ms=4, label='log: theta (complementary filter)')
 tt = np.linspace(0, t[m][-1], 200)
 fit = coef[0] * np.exp(p_drop * tt) + coef[1] * np.exp(-p_drop * tt) + coef[2]
-ax[0].plot(tt, fit, 'r', label='fit $Ae^{pt}+Be^{-pt}$, p = %.1f 1/s' % p_drop)
+ax[0].plot(tt, fit, 'r', label='fit $Ae^{pt}+Be^{-pt}+c$, p = %.1f 1/s' % p_drop)
 ax[0].set(xlabel='time (s)', ylabel='theta (deg)', title='Drop test, motors off')
 ax[1].semilogy(t, np.abs(th), '.', ms=4, label='|theta| log')
 ax[1].semilogy(tt, np.abs(fit), 'r', label='fit')

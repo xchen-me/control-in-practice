@@ -51,8 +51,9 @@ and Ms, and draw the measured Nyquist plot. Confirm stability with an encircleme
 ## 7. Push the crossover (10 pts) — L26
 Raise the design crossover by 50 %. Report the measured margins and Ms, then simulate a 1 mm step with
 `ctrlprac.sim.simulate_loop` and `ctrlprac.sim.LTIController` on your structured model of Problem 4(b),
-including its resonance (`ct.ss(...)`; current limit, encoder quantization, `delay=(2 - 1) * Ts`). Compare
-both designs (overshoot, residual oscillation).
+including its resonance (`ct.ss(...)`; current limit, encoder quantization, `delay=(2 - 1) * Ts`). The
+simulator applies one sample of delay by itself, so this gives the 2 samples of the drive; the force ripple
+may be left out, as in demo 3. Compare both designs (overshoot, residual oscillation).
 
 ## 8. Engineering judgement (10 pts)
 The customer asks for twice the bandwidth of your Problem 6 design on S2. What limits it, why is the

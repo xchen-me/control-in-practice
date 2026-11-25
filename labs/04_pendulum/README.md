@@ -65,8 +65,9 @@ gyroscope CSV. In the setup photo, show the pendulum and the tape, not people or
 - `_make_data.py` (the simulated sample), `figures/scene.tex` and `scene_hw.tex` (TikZ source of the
   scene figures; `tools/build_figures.sh 04_`).
 
-**Your own recording in the demos.** In `demo_pendulum_1_decay.py`, change `name = '04_pendulum_sample'` to
-`name = '04_pendulum_my_recording'` and set d and the phone size in the demo (the sample reads them from its JSON).
+**Your own recording in the demos.** In both demos, change `name = '04_pendulum_sample'` to
+`name = '04_pendulum_my_recording'` and set d and the phone size (`d, h, w_ph` in demo 1, `par` in demo 2; the sample
+reads them from its JSON).
 
 ## How to run
 

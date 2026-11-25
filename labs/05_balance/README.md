@@ -19,7 +19,9 @@ wheel position:
     a = m_w + I_w/r^2 + m_b,   b = m_b l,   c = I_b + m_b l^2,   I_w = m_w r^2/2
 
 Sign convention: theta > 0 when the body leans backward, tau > 0 drives the wheels forward; then b0 > 0
-and the usual negative feedback tau = -C(s) theta balances.
+and the usual negative feedback tau = -C(s) theta balances. In `_model.py` I_b is a fixed number, so
+changing m_b in `dict(M.ROBOT_A, m_b=...)` adds or removes mass at the centre of mass, and changing l moves
+the body without changing its own inertia.
 
 | | robot R1 (demos) | robot R2 (homework) |
 |---|---|---|
@@ -33,9 +35,10 @@ and the usual negative feedback tau = -C(s) theta balances.
 Representative values for small geared-DC-motor balancing robots, not a specific product.
 Sensing and firmware: 200 Hz loop; MEMS IMU (gyro noise 0.1 deg/s, bias 0.4 deg/s; accelerometer tilt
 noise 0.3 deg), complementary filter alpha = 0.98; PD from `ctrlprac.sim.PID` with a filtered
-backward-difference derivative (Tf = 5 ms); one sample of sensor + computation delay; 8-bit PWM torque
-command. Logs are simulated with the nonlinear equations (sin theta, RK4) and marked `"source":
-"simulated"`; the acceleration error of the accelerometer is not modelled.
+backward-difference derivative (Tf = 5 ms); one sample of sensor + computation delay, so with the
+zero-order hold the total loop delay is Td = (n + 1/2) Ts = 7.5 ms for n = 1; 8-bit PWM torque command;
+a 45 deg tilt cutoff that ends a run as a fall. Logs are simulated with the nonlinear equations (sin theta,
+RK4) and marked `"source": "simulated"`; the acceleration error of the accelerometer is not modelled.
 
 ## Data
 
@@ -43,7 +46,7 @@ command. Logs are simulated with the nonlinear equations (sin theta, RK4) and ma
 |---|---|
 | `05_balance_drop` | R1, motors off, released near upright until the 30 deg stand |
 | `05_balance_push` | R1 balancing, pushed at 3 s and 6.5 s, PRBS torque dither for identification |
-| `05_balance_tipover` | R1, firmware v2 with 6 samples (30 ms) of loop delay: tips over |
+| `05_balance_tipover` | R1, firmware v2 with 6 samples of loop delay (Td = 32.5 ms): tips over |
 | `05_hw_*` | the same three tests on robot R2 (homework) |
 
 Columns: `time_s, theta_deg` (complementary filter), `gyro_dps, acc_tilt_deg, tau_cmd_Nm` (+ `dither_Nm`).
@@ -74,7 +77,7 @@ Columns: `time_s, theta_deg` (complementary filter), `gyro_dps, acc_tilt_deg, ta
 
 Key results for R1 (firmware gains Kp = 1.38 N m/rad, Kd = 0.0585 N m s/rad): PM = 29 deg at 6.7 Hz,
 gain may drop to 22 % or rise 2.7x, total loop delay limit 19.6 ms (3 samples stable, 4 unstable); the
-30 ms firmware tips over with a 33 rad/s growing oscillation, as the model predicts.
+6-sample firmware (Td = 32.5 ms) tips over with a 33 rad/s growing oscillation, as the model predicts.
 
 ## How to run
 
